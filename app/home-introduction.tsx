@@ -1,6 +1,8 @@
-export default function HomeIntroduction() {
+import type { ReactNode } from 'react';
+export default function HomeIntroduction({children}:{children?:ReactNode}) {
   return <section className="home-introduction" aria-labelledby="home-welcome">
     <h1 id="home-welcome">Приветствую вас на сайте УСБ ГибДД</h1>
+    {children}
     <article>
       <h2>Управление собственной безопасности ГИБДД</h2>
       <p>УСБ ГИБДД — структурное подразделение, обеспечивающее законность, дисциплину и защиту репутации службы в рамках игрового проекта «Россия Онлайн».</p>
