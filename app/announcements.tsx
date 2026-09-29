@@ -4,9 +4,9 @@ import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { portalApi, type Announcement } from '@/lib/portal-api';
 import { usePortalList } from './use-portal-list';
+import { formatSiteDate as when, toSiteDateTimeInput, fromSiteDateTimeInput, SITE_TIME_LABEL } from '@/lib/date-time';
 const kinds={news:'Новости подразделения',rules:'Изменения правил',attestation:'Аттестация'};
-const when=(value:string)=>new Date(value).toLocaleString('ru-RU',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'});
-const localDate=(value:string|null)=>value?new Date(Date.parse(value)-new Date(value).getTimezoneOffset()*60000).toISOString().slice(0,16):'';
+const localDate=(value:string|null)=>value?toSiteDateTimeInput(value):'';
 type Draft=Partial<Announcement>&Pick<Announcement,'title'|'body'|'kind'|'pinned'|'published'>;
 export default function Announcements({canManage=false}:{canManage?:boolean}){
   const [management,setManagement]=useState(false);const [limit,setLimit]=useState(3);
@@ -15,7 +15,7 @@ export default function Announcements({canManage=false}:{canManage?:boolean}){
   const items=data?.announcements||[];
   const edit=(item?:Announcement)=>{setDraft(item||{title:'',body:'',kind:'news',pinned:false,published:false});setEventDate(localDate(item?.eventAt||null));setFormError('');};
   const save=async(event:React.FormEvent)=>{event.preventDefault();if(!draft)return;setSaving(true);setFormError('');
-    try{await portalApi({action:'saveAnnouncement',...draft,eventAt:eventDate?new Date(eventDate).toISOString():null});setDraft(null);refresh();toast.success(draft.published?'Объявление опубликовано':'Черновик сохранён');}
+    try{await portalApi({action:'saveAnnouncement',...draft,eventAt:eventDate?fromSiteDateTimeInput(eventDate):null});setDraft(null);refresh();toast.success(draft.published?'Объявление опубликовано':'Черновик сохранён');}
     catch(e:any){setFormError(e.message||'Проверьте дату события.');}finally{setSaving(false);}
   };
   return <section className="announcements portal-section" aria-labelledby="announcements-title">
@@ -35,7 +35,7 @@ export default function Announcements({canManage=false}:{canManage?:boolean}){
     <Dialog open={!!draft} onOpenChange={open=>{if(!open&&!saving)setDraft(null);}}><DialogContent className="portal-editor" onInteractOutside={event=>event.preventDefault()} onEscapeKeyDown={event=>{if(saving)event.preventDefault();}}><DialogHeader><DialogTitle>{draft?.id?'Редактировать объявление':'Новое объявление'}</DialogTitle><DialogDescription>Новости, изменения правил и даты аттестаций на главной странице.</DialogDescription></DialogHeader>
       {draft&&<form onSubmit={save} className="portal-form"><label className="field">Заголовок<input required minLength={3} maxLength={140} value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})}/></label>
         <div className="portal-form-row"><label className="field">Тип<select value={draft.kind} onChange={e=>setDraft({...draft,kind:e.target.value as Announcement['kind']})}>{Object.entries(kinds).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
-        <label className="field">Дата события · необязательно<input type="datetime-local" value={eventDate} onChange={e=>setEventDate(e.target.value)}/><small>Часовой пояс: {Intl.DateTimeFormat().resolvedOptions().timeZone}</small></label></div>
+        <label className="field">Дата события · необязательно<input type="datetime-local" value={eventDate} onChange={e=>setEventDate(e.target.value)}/><small>{SITE_TIME_LABEL}</small></label></div>
         <label className="field">Текст<textarea required rows={8} maxLength={6000} value={draft.body} onChange={e=>setDraft({...draft,body:e.target.value})}/></label>
         <label className="portal-checkbox"><input type="checkbox" checked={draft.pinned} onChange={e=>setDraft({...draft,pinned:e.target.checked})}/>Закрепить в начале списка</label>
         <label className="portal-checkbox"><input type="checkbox" checked={draft.published} onChange={e=>setDraft({...draft,published:e.target.checked})}/>Опубликовать для всех посетителей</label>

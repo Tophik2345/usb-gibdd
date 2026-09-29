@@ -10,6 +10,7 @@ import CreatorAccess from './creator-access';
 import UserProfile from './user-profile';
 import HomeIntroduction from './home-introduction';
 import { workspaceApi as api } from '@/lib/workspace-api';
+import { formatSiteDate } from '@/lib/date-time';
 import { authConfigured, supabase } from '@/lib/supabase';
 import { Check, Plus, ClipboardCheck, ChartNoAxesCombined, SlidersHorizontal, CircleCheck, Clock3, BookOpen, Users, X, Pencil, Trash2, FileQuestion, ShieldCheck, LogIn, LogOut, Loader2, CheckCheck, Info, Save, LayoutGrid } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -28,7 +29,7 @@ const DEMO:Test={id:'demo-information',title:'Работа с информаци
 const emptyData:WorkspaceData={role:'employee',permissions:{canCreateTests:false,canManageCreators:false},user:{displayName:'',email:''},tests:[DEMO],managed:[],attempts:[],team:[],assignments:[],assignedTeam:[]};
 const pass=(a:Attempt)=>a.score!==null&&a.score*100>=a.total*a.passMark;
 const percentage=(a:Attempt)=>a.score===null?'—':Number((a.score/a.total*100).toFixed(1)).toLocaleString('ru-RU')+'%';
-const date=(s:string)=>new Date(s).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const date=(s:string)=>formatSiteDate(s,{month:'short',year:undefined});
 
 function Blank({title,text,children}:{title:string;text:string;children?:React.ReactNode}){return <Empty className="empty-state"><EmptyHeader><div className="empty-icon"><ClipboardCheck size={27}/></div><EmptyTitle>{title}</EmptyTitle><EmptyDescription>{text}</EmptyDescription></EmptyHeader>{children}</Empty>;}
 export default function Workspace(){

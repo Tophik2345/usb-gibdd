@@ -6,9 +6,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@/components/ui/alert-dialog';
 import { workspaceApi as api } from '@/lib/workspace-api';
 import type { Assignment, Workspace } from '@/lib/types';
+import { formatSiteDate as when, toSiteDateTimeInput as localInput, fromSiteDateTimeInput, SITE_TIME_LABEL } from '@/lib/date-time';
 
-const when=(value:string)=>new Date(value).toLocaleString('ru-RU',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
-const localInput=(value:Date)=>new Date(value.getTime()-value.getTimezoneOffset()*60_000).toISOString().slice(0,16);
 const labels={assigned:'Назначен',overdue:'Просрочен',passed:'Пройден',cancelled:'Отменён'};
 
 export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,initialTestId}:{
@@ -26,7 +25,6 @@ export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,ini
   const [newDue,setNewDue]=useState('');
   const [cancel,setCancel]=useState<Assignment|null>(null);
   const [clock,setClock]=useState(Date.now());
-  const timezone=Intl.DateTimeFormat().resolvedOptions().timeZone;
   useEffect(()=>{const id=setInterval(()=>setClock(Date.now()),30_000);return()=>clearInterval(id);},[]);
   useEffect(()=>{if(initialTestId){setTestId(initialTestId);setScope('team');}},[initialTestId]);
   const status=(item:Assignment)=>item.status==='assigned'&&Date.parse(item.dueAt)<clock?'overdue':item.status;
@@ -34,14 +32,14 @@ export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,ini
   const create=async(event:React.FormEvent)=>{
     event.preventDefault();setSaving(true);setError('');
     try{
-      await api('',{action:'assignTest',testId,login:login.trim(),dueAt:new Date(due).toISOString()});
+      await api('',{action:'assignTest',testId,login:login.trim(),dueAt:fromSiteDateTimeInput(due)});
       setLogin('');setScope('team');await onRefresh();toast.success('Тест назначен сотруднику');
     }catch(e:any){setError(e.message||'Проверьте срок сдачи.');}finally{setSaving(false);}
   };
   const change=async(action:'rescheduleAssignment'|'cancelAssignment',item:Assignment)=>{
     setSaving(true);setError('');
     try{
-      await api('',{action,id:item.id,...(action==='rescheduleAssignment'?{dueAt:new Date(newDue).toISOString()}:{})});
+      await api('',{action,id:item.id,...(action==='rescheduleAssignment'?{dueAt:fromSiteDateTimeInput(newDue)}:{})});
       setReschedule(null);setCancel(null);await onRefresh();toast.success(action==='rescheduleAssignment'?'Срок обновлён':'Назначение отменено');
     }catch(e:any){setError(e.message||'Не удалось обновить назначение.');}finally{setSaving(false);}
   };
@@ -67,19 +65,19 @@ export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,ini
     {error&&!reschedule&&!cancel&&<p className="inline-error" role="alert">{error}</p>}
     <Tabs value={scope} onValueChange={setScope}>
       <TabsList className="scope-tabs"><TabsTrigger value="mine">Мои задания <span className="count-pill">{(data.assignments||[]).filter(item=>['assigned','overdue'].includes(status(item))).length}</span></TabsTrigger>{canAssign&&<TabsTrigger value="team">Выданные мной</TabsTrigger>}</TabsList>
-      <TabsContent value="mine"><p className="table-caption">Начинайте проверку из карточки задания. Зачёт засчитывается при достижении проходного балла; работу над ошибками можно пройти отдельно. Сроки показаны в часовом поясе {timezone}.</p>{cards(data.assignments||[],true)}</TabsContent>
+      <TabsContent value="mine"><p className="table-caption">Начинайте проверку из карточки задания. Зачёт засчитывается при достижении проходного балла; работу над ошибками можно пройти отдельно. Все сроки указаны по московскому времени — МСК (UTC+3).</p>{cards(data.assignments||[],true)}</TabsContent>
       {canAssign&&<TabsContent value="team">
         <form className="assignment-form" onSubmit={create}>
           <div><h2>Назначить проверку</h2><p>Сотрудник увидит задание в своём аккаунте. Вопросы и проходной балл сохраняются на момент назначения.</p></div>
           <label className="field">Ваш опубликованный тест<select required value={testId} onChange={event=>setTestId(event.target.value)} disabled={locked||!published.length}><option value="" disabled>Выберите тест</option>{published.map(test=><option key={test.id} value={test.id}>{test.title}</option>)}</select></label>
-          <div className="assignment-form-fields"><label className="field">Логин сотрудника<input required minLength={2} maxLength={100} value={login} onChange={event=>setLogin(event.target.value)} placeholder="Имя Фамилия Статик" disabled={locked}/></label><label className="field">Срок сдачи<input required type="datetime-local" min={localInput(new Date(clock))} value={due} onChange={event=>setDue(event.target.value)} disabled={locked}/><small>Ваше время: {timezone}</small></label></div>
+          <div className="assignment-form-fields"><label className="field">Логин сотрудника<input required minLength={2} maxLength={100} value={login} onChange={event=>setLogin(event.target.value)} placeholder="Имя Фамилия Статик" disabled={locked}/></label><label className="field">Срок сдачи<input required type="datetime-local" min={localInput(new Date(clock))} value={due} onChange={event=>setDue(event.target.value)} disabled={locked}/><small>{SITE_TIME_LABEL}</small></label></div>
           {!published.length&&<p className="helper">Сначала опубликуйте свой тест в разделе «Управление».</p>}
           <button className="button primary" type="submit" disabled={locked||!published.length||!testId}>{saving?<Loader2 size={17} className="spin"/>:<Send size={17}/>}Назначить тест</button>
         </form>
         <h2 className="assignment-list-title">Выданные задания</h2>{cards(data.assignedTeam||[],false)}
       </TabsContent>}
     </Tabs>
-    <Dialog open={!!reschedule} onOpenChange={open=>{if(!open&&!saving)setReschedule(null);}}><DialogContent className="start-dialog"><DialogHeader><DialogTitle>Изменить срок сдачи</DialogTitle><DialogDescription>{reschedule?.testTitle} · {reschedule?.employeeLogin}</DialogDescription></DialogHeader><form className="assignment-reschedule" onSubmit={event=>{event.preventDefault();if(reschedule)change('rescheduleAssignment',reschedule);}}><label className="field">Новый срок<input type="datetime-local" required min={localInput(new Date(clock))} value={newDue} onChange={event=>setNewDue(event.target.value)}/><small>{timezone}</small></label>{error&&<p className="inline-error" role="alert">{error}</p>}<button className="button primary" disabled={saving} type="submit">{saving?'Сохраняем…':'Сохранить срок'}</button></form></DialogContent></Dialog>
+    <Dialog open={!!reschedule} onOpenChange={open=>{if(!open&&!saving)setReschedule(null);}}><DialogContent className="start-dialog"><DialogHeader><DialogTitle>Изменить срок сдачи</DialogTitle><DialogDescription>{reschedule?.testTitle} · {reschedule?.employeeLogin}</DialogDescription></DialogHeader><form className="assignment-reschedule" onSubmit={event=>{event.preventDefault();if(reschedule)change('rescheduleAssignment',reschedule);}}><label className="field">Новый срок<input type="datetime-local" required min={localInput(new Date(clock))} value={newDue} onChange={event=>setNewDue(event.target.value)}/><small>{SITE_TIME_LABEL}</small></label>{error&&<p className="inline-error" role="alert">{error}</p>}<button className="button primary" disabled={saving} type="submit">{saving?'Сохраняем…':'Сохранить срок'}</button></form></DialogContent></Dialog>
     <AlertDialog open={!!cancel} onOpenChange={open=>{if(!open&&!saving)setCancel(null);}}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Отменить назначение?</AlertDialogTitle><AlertDialogDescription>Задание «{cancel?.testTitle}» для {cancel?.employeeLogin} больше не будет требовать сдачи. Уже полученные результаты сохранятся.</AlertDialogDescription></AlertDialogHeader>{error&&<p className="inline-error" role="alert">{error}</p>}<AlertDialogFooter><AlertDialogCancel disabled={saving}>Оставить задание</AlertDialogCancel><AlertDialogAction disabled={saving} onClick={event=>{event.preventDefault();if(cancel)change('cancelAssignment',cancel);}}>{saving?'Сохраняем…':'Отменить назначение'}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
   </section>;
 }
