@@ -10,11 +10,11 @@ export const siteSections = [
   { id: 'duties', title: 'Обязанности сотрудников УСБ' },
   { id: 'links', title: 'Полезные ссылки' },
 ] as const;
-export type SitePage = typeof siteSections[number]['id'] | 'account';
+export type SitePage = typeof siteSections[number]['id'] | 'account' | 'profile';
 
 export function pageFromHash(): SitePage {
   const hash = window.location.hash.slice(1);
-  return siteSections.some(section => section.id === hash) ? hash as SitePage : 'account';
+  return hash==='profile'||siteSections.some(section => section.id === hash) ? hash as SitePage : 'account';
 }
 
 export function Logo() {
@@ -31,7 +31,7 @@ export default function SiteHeader({page,displayName,busy,onLogout,onNavigate}:{
       <a href="#home" className="site-brand-link" aria-label="УСБ ГибДД — Главная" onClick={e=>{e.preventDefault();navigate('home');}}><Logo/></a>
       <aside className="site-motto"><strong>Наш девиз</strong><span>«Мы следим за теми, кто следит за порядком».</span></aside>
       <div className="site-account">
-        {displayName!==undefined ? <><span className="profile-name">{displayName||'Личный кабинет'}</span><button type="button" className="icon-button" aria-label="Выйти из аккаунта" onClick={onLogout} disabled={busy}><LogOut size={20}/></button></> :
+        {displayName!==undefined ? <><a href="#profile" className="profile-name profile-link" title="Открыть мой профиль" aria-label={(displayName||'Личный кабинет')+' — открыть профиль'} onClick={e=>{e.preventDefault();navigate('profile');}}>{displayName||'Личный кабинет'}</a><button type="button" className="icon-button" aria-label="Выйти из аккаунта" onClick={onLogout} disabled={busy}><LogOut size={20}/></button></> :
           <a href="#account" className="button outline" onClick={e=>{e.preventDefault();navigate('account');}}><LogIn size={17}/>Войти</a>}
         <button type="button" className="mobile-menu-button icon-button" aria-label={menuOpen?'Закрыть меню':'Открыть меню'} aria-expanded={menuOpen} aria-controls="site-navigation" onClick={()=>setMenuOpen(open=>!open)}>{menuOpen?<X size={23}/>:<Menu size={23}/>}</button>
       </div>
