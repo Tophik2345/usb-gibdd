@@ -1,22 +1,13 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
-const target = new URL('../public/background-wall.png', import.meta.url);
-const source = 'https://tophik2345.github.io/up9-memo/background-wall.png';
-const expected = '88c095ee1674ecf17b81f2671d257b5232cec6fecd05812983623612534d73b9';
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
-let bytes;
-try { bytes = await readFile(target); } catch (error) { if (error.code !== 'ENOENT') throw error; }
-if (bytes && digest(bytes) !== expected) throw new Error('The background file has changed; review its checksum before building.');
-if (!bytes) {
-  const response = await fetch(source, { signal: AbortSignal.timeout(30000) });
-  if (!response.ok) throw new Error(`Background download failed: ${response.status}`);
-  bytes = Buffer.from(await response.arrayBuffer());
-  if (digest(bytes) !== expected) throw new Error('The downloaded background does not match the approved image.');
-  await mkdir(new URL('../public/', import.meta.url), { recursive: true });
-  await writeFile(target, bytes);
+const background = await readFile(new URL('../public/usb-gibdd-background.webp', import.meta.url));
+if (digest(background) !== '52f2d2c8fe59e397796b3cbb5665c67e99f20f0f471f144d2eec10a2eddaee1b') {
+  throw new Error('The generated GIBDD background does not match the approved asset.');
 }
-console.log('Background image verified.');
+await mkdir(new URL('../public/', import.meta.url), { recursive: true });
+console.log('Generated GIBDD background verified.');
 
 const emblemTarget = new URL('../public/gibdd-emblem.svg', import.meta.url);
 const emblemSource = 'https://upload.wikimedia.org/wikipedia/commons/8/88/Emblem_of_the_traffic_police_of_Russia.svg';
