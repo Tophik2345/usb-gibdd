@@ -1,0 +1,75 @@
+/* Burgundy accents over the established dark portal theme. */
+:root {
+  --primary: #b54353;
+  --primary-foreground: #fff;
+  --accent: #402733;
+  --accent-foreground: #f6dce1;
+  --ring: #e58b97;
+  --red-soft: #e9a6b0;
+  --red-surface: #35232d;
+  --red-border: #995665;
+}
+
+::selection { background: #8d364b; color: #fff; }
+.site-header, .topbar { border-bottom-color: #98536266; }
+.site-navigation > a:hover { background: #98374917; color: #fbe1e5; }
+.site-navigation > a[aria-current=page] { background: #9837492b; color: #ffe1e6; }
+.site-navigation > a[aria-current=page]::after { background: #d87283; }
+.main-nav [data-slot=tabs-trigger][data-state=active] { color: #f3c5ce; border-color: #d87283; }
+.main-nav [data-slot=tabs-trigger][data-state=active]::after { background: #d87283; }
+
+.button.primary { background: var(--primary); border-color: #cf6978; color: #fff; }
+.button.primary:hover { background: #c04c5c; border-color: #df8490; color: #fff; }
+.button.outline { background: #251e27eb; border-color: #80505d; color: #f2d0d8; }
+.button.outline:hover { background: #3a242e; border-color: #bc7483; }
+.text-button, .guide-references a, .law-feedback a { color: var(--red-soft); }
+.text-button:hover, .guide-references a:hover, .law-feedback a:hover { color: #ffdae2; }
+.site-account .profile-link { color: #efc8d2; text-decoration-color: #9c5969; }
+.site-account .profile-link:hover { color: #ffe5eb; text-decoration-color: #de8b9c; }
+
+.eyebrow, .page-heading .eyebrow, .announcements .eyebrow,
+.auth-form-panel .eyebrow, .start-dialog .eyebrow,
+.session-dialog .eyebrow, .editor-top .eyebrow, .heading-dot { color: #e59aa8; }
+.portal-heading h2 > svg, .law-search > svg { color: #dd8b9c; }
+.home-introduction > article { border-top-color: #94505f; }
+.auth-aside-icon, .create-plus, .create-card .create-link, .modal-symbol {
+  background: #35232d; border-color: #824857; color: #edb1bf;
+}
+.auth-benefit > svg, .guide-icon { color: #e29bac; }
+.test-symbol { color: #e9a6b7 !important; }
+.profile-avatar, .avatar { background: #35232d; border-color: #814957; color: #efc1cd; }
+
+.auth-tabs [data-slot=tabs-trigger][data-state=active],
+.scope-tabs [data-slot=tabs-trigger][data-state=active] {
+  background: var(--red-surface); color: #f8d8e0;
+}
+.law-search-scopes button[aria-pressed=true] {
+  background: var(--red-surface); border-color: var(--red-border); color: #f8d8e0;
+}
+.law-search-scopes button:hover { background: #392731; }
+.law-document-picker button[aria-pressed=true] {
+  background: var(--red-surface); border-color: var(--red-border); color: #f8d8e0;
+}
+.law-document-picker button[aria-pressed=true] small { color: #d6b2bd; }
+.law-document-picker button:hover, .newcomer-topics button:hover { border-color: #aa6677; }
+.newcomer-topics button:hover { background: #33252f; }
+.useful-link-card > a, .law-result-title { color: #efd0d9; }
+.useful-link-card > a:hover, .law-result-title:hover { color: #ffe8ee; }
+.law-bookmark.is-saved { background: #3b2530; border-color: #a36072; color: #f1becd; }
+
+.field input:focus, .field textarea:focus, .editor-option input:focus {
+  border-color: var(--ring); box-shadow: 0 0 0 2px #e58b9720;
+}
+.law-search:focus-within, .editor-option:focus-within,
+.assignment-form .field select:focus, .newcomer-topics button:focus-visible,
+.employee-guide-card:focus-visible { outline-color: var(--ring); }
+.portal-checkbox input { accent-color: var(--primary); }
+.question-nav button.current { background: var(--primary); border-color: #cf6978; color: #fff; }
+.answer-option:hover { background: #30252e; border-color: #a06a78; }
+.answer-option.selected, .answer-option[data-state=checked] {
+  background: #402632; border-color: #cc8191; color: #fbe4eb;
+}
+
+@media (hover:hover) {
+  .test-card:hover, .create-card:hover { border-color: #995d6d; }
+}
