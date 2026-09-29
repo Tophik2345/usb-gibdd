@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { resolve } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
+import { checkLearning } from './test-learning.mjs';
 
 const root=resolve(import.meta.dirname,'..');
 const db=new PGlite();
@@ -163,5 +164,6 @@ try {
   assert.equal((await rpc({})).role,'employee');
   await denied(()=>rpc({...base,id:deputyTest.id}),'PT403');
   checks.push('Owner downgrade immediately removes delegation; deputy can edit only own tests, role label is server-owned, owner can revoke deputy authorship');
+  await checkLearning({db,asUser,rpc,denied,A,B,C,base,checks,failedAttempt:result});
   console.log(JSON.stringify({passed:checks.length,checks,scope:'Actual PostgreSQL engine (PGlite), migrations, database roles and RPC; Auth JWT claims mocked locally'},null,2));
 } finally {await db.close();}
