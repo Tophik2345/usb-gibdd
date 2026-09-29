@@ -16,8 +16,7 @@
 .work-photo-caption > svg { color: #d3a0ab; flex-shrink: 0; }
 .work-photo:hover { border-color: #b86879; box-shadow: 0 8px 30px #0004; }
 .work-photo:focus-visible, .work-photo-close:focus-visible, .work-photo-controls button:focus-visible, .work-photo-viewer a:focus-visible, .work-gallery a:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
-.home-introduction .work-gallery-credit { margin: 13px 0 0; text-indent: 0; font-size: 12px; color: #aeb8c3; line-height: 1.75; }
-.work-gallery-credit a, .work-photo-viewer-footer a { display: inline-flex; align-items: center; gap: 3px; color: #e9a6b0; text-decoration: underline; text-underline-offset: 3px; }
+.work-photo-viewer-footer a { display: inline-flex; align-items: center; gap: 3px; color: #e9a6b0; text-decoration: underline; text-underline-offset: 3px; }
 .work-photo-viewer[data-slot=dialog-content] { width: min(1240px, calc(100vw - 32px)); max-width: min(1240px, calc(100vw - 32px)); padding: 18px; gap: 14px; max-height: calc(100dvh - 24px); overflow-y: auto; background: #11171e; border-color: #79515f; }
 .work-photo-viewer-heading { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
 .work-photo-viewer-heading [data-slot=dialog-title] { font-size: 17px; line-height: 1.5; color: #edf1f5; }

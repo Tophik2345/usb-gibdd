@@ -40,7 +40,6 @@ export default function WorkGallery() {
         </span>
       </button>)}
     </div>
-    <p className="work-gallery-credit">Иллюстративные кадры проекта. Источник: <a href="https://majestic-rp.ru/russia-online" target="_blank" rel="noopener noreferrer">официальная галерея Majestic <ArrowUpRight size={13} aria-hidden="true" /></a>.</p>
 
     <Dialog open={photo !== null} onOpenChange={open => { if (!open) setSelected(null); }}>
       <DialogContent
