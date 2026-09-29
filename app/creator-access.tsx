@@ -3,7 +3,7 @@ import { Loader2, Plus, ShieldCheck, UserMinus, Users } from 'lucide-react';
 import { workspaceApi } from '@/lib/workspace-api';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@/components/ui/alert-dialog';
 
-type Creator={userId:string;login:string;role:'owner'|'author';grantedAt:string};
+type Creator={userId:string;login:string;role:'owner'|'deputy'|'author';grantedAt:string};
 type AccessList={creators:Creator[]};
 
 export default function CreatorAccess(){
@@ -38,7 +38,7 @@ export default function CreatorAccess(){
     <div className="section-top"><h2><Users size={21}/>Список авторов <span className="count-pill">{creators.length}</span></h2><button type="button" className="text-button" onClick={load} disabled={busy||loading}>Обновить список</button></div>
     {loading?<p className="creator-loading" role="status"><Loader2 size={20} className="spin"/>Загружаем список…</p>:<div className="creator-list">{creators.map(creator=><article className="creator-row" key={creator.userId}>
       <span className="stat-icon blue"><ShieldCheck size={22}/></span>
-      <div className="creator-name"><strong>{creator.login}</strong><span>{creator.role==='owner'?'Владелец сайта · управление списком авторов':'Автор · создание и редактирование своих тестов'}</span></div>
+      <div className="creator-name"><strong>{creator.login}</strong><span>{creator.role==='owner'?'Владелец сайта · управление списком авторов':creator.role==='deputy'?'Заместитель · создание и редактирование своих тестов':'Автор · создание и редактирование своих тестов'}</span></div>
       {creator.role==='owner'?<span className="badge blue-badge">Владелец</span>:<button type="button" className="button outline" onClick={()=>setRemoving(creator)} disabled={busy}><UserMinus size={17}/>Убрать доступ</button>}
     </article>)}</div>}
     <p className="creator-note">Отзыв доступа не удаляет аккаунт, уже созданные тесты и результаты прохождения.</p>

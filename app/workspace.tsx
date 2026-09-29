@@ -22,7 +22,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
 import type { Workspace as WorkspaceData, Test, Attempt, Question } from '@/lib/types';
 const DEMO:Test={id:'demo-information',title:'Работа с информацией',description:'Проверьте внимательность на примере шести рабочих ситуаций. Все условия даны в вопросах.',category:'Демонстрация',passMark:80,count:6,published:true,demo:true};
-const emptyData:WorkspaceData={permissions:{canCreateTests:false,canManageCreators:false},user:{displayName:'',email:''},tests:[DEMO],managed:[],attempts:[],team:[]};
+const emptyData:WorkspaceData={role:'employee',permissions:{canCreateTests:false,canManageCreators:false},user:{displayName:'',email:''},tests:[DEMO],managed:[],attempts:[],team:[]};
 const pass=(a:Attempt)=>a.score!==null&&a.score*100>=a.total*a.passMark;
 const percentage=(a:Attempt)=>a.score===null?'—':Number((a.score/a.total*100).toFixed(1)).toLocaleString('ru-RU')+'%';
 const date=(s:string)=>new Date(s).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});

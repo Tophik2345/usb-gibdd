@@ -4,7 +4,7 @@ import type { Workspace } from '@/lib/types';
 export default function UserProfile({data,onResults,onTests,onAccess}:{data:Workspace;onResults:()=>void;onTests:()=>void;onAccess:()=>void}) {
   const finished=data.attempts.filter(attempt=>attempt.finishedAt);
   const average=finished.length?Math.round(finished.reduce((total,attempt)=>total+(attempt.score||0)/attempt.total*100,0)/finished.length):null;
-  const role=data.permissions.canManageCreators?'Владелец сайта':data.permissions.canCreateTests?'Автор тестов':'Сотрудник';
+  const role=data.permissions.canManageCreators?'Владелец сайта':data.role==='deputy'?'Заместитель':data.permissions.canCreateTests?'Автор тестов':'Сотрудник';
   return <section className="user-profile" aria-labelledby="profile-title">
     <div className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</div>
     <h1 id="profile-title">Профиль пользователя</h1>
