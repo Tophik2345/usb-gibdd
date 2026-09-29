@@ -1,0 +1,4 @@
+export type Question = { id: string; text: string; options: string[]; correct?: number; explanation?: string };
+export type Test = { id: string; title: string; description: string; category: string; passMark: number; count: number; mine?: boolean; demo?: boolean; published: boolean; questions?: Question[] };
+export type Attempt = { id: string; testId: string; testTitle: string; employeeName: string; passMark: number; questions?: Question[]; answers?: Record<string,number>; startedAt: string; finishedAt: string|null; score: number|null; total: number; demo?: boolean };
+export type Workspace = { user: {displayName: string; email: string}; tests: Test[]; managed: Test[]; attempts: Attempt[]; team: Attempt[] };

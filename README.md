@@ -188,7 +188,9 @@ pnpm preview
 Фоновое изображение сохранено из указанного образца:
 https://tophik2345.github.io/up9-memo/background-wall.png
 
-Оно находится в `public/background-wall.png` и загружается с самого сайта.
+При первой сборке `scripts/prepare-assets.mjs` скачивает исходное изображение,
+проверяет его SHA-256 и сохраняет в `public/background-wall.png`.
+В опубликованном сайте фон входит в сборку и загружается с самого сайта.
 Шрифты системные; иконки, React и Supabase SDK входят в сборку. Подключений
 к ChatGPT, Google Fonts или внешним CDN для оформления нет.
 
