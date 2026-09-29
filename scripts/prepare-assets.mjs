@@ -17,3 +17,17 @@ if (!bytes) {
   await writeFile(target, bytes);
 }
 console.log('Background image verified.');
+
+const emblemTarget = new URL('../public/gibdd-emblem.svg', import.meta.url);
+const emblemSource = 'https://upload.wikimedia.org/wikipedia/commons/8/88/Emblem_of_the_traffic_police_of_Russia.svg';
+const emblemHash = '63828f7970e1e48d3925a624db2ebcbf3d54c28817b2b6cf8002d1b78f920972';
+let emblem;
+try { emblem = await readFile(emblemTarget); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+if (!emblem) {
+  const response = await fetch(emblemSource, { signal: AbortSignal.timeout(30000) });
+  if (!response.ok) throw new Error(`Emblem download failed: ${response.status}`);
+  emblem = Buffer.from(await response.arrayBuffer());
+}
+if (digest(emblem) !== emblemHash) throw new Error('The emblem does not match the approved original SVG.');
+await writeFile(emblemTarget, emblem);
+console.log('Original GIBDD emblem verified.');

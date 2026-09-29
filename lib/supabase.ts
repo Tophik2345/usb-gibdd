@@ -25,3 +25,15 @@ export function siteReturnUrl() {
   return new URL('./', window.location.href).href;
 }
 export const discordEnabled = import.meta.env.VITE_DISCORD_ENABLED === 'true';
+
+export async function signInWithLogin(login: string, password: string) {
+  const response = await fetch(`${projectUrl}/functions/v1/username-login`, {
+    method: 'POST', headers: { apikey: publishableKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ login: login.trim().replace(/\s+/g, ' '), password }),
+    signal: AbortSignal.timeout(30000),
+  });
+  const result = await response.json();
+  if (!response.ok) throw { code: result.code, status: response.status };
+  const { error } = await supabase().auth.setSession({ access_token: result.access_token, refresh_token: result.refresh_token });
+  if (error) throw error;
+}

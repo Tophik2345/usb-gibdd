@@ -11,7 +11,7 @@
     "dev": "node scripts/prepare-assets.mjs && vite",
     "build": "node scripts/prepare-assets.mjs && tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test:db": "node scripts/test-database.mjs"
+    "test:db": "node scripts/test-database.mjs && node scripts/test-login-function.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",

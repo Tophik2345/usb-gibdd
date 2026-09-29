@@ -97,3 +97,22 @@ input::placeholder,textarea::placeholder{color:#849caf}.field>span{color:#b7cadb
 @media(max-width:1000px){.auth-layout{gap:40px}.auth-aside h2{font-size:39px}.auth-form-panel{padding:27px}.page-heading h1{font-size:40px}.main-nav{gap:23px!important}}
 @media(max-width:720px){body::before{background-position:center,center,64% center}.topbar-inner{padding:16px 20px;min-height:72px}.brand{font-size:15px;gap:9px}.brand-caption{font-size:10px;letter-spacing:.025em}.main{padding:0 20px 30px}.workspace-tag{display:none}.main-nav{height:65px!important;gap:10px!important}.nav-row{height:65px;margin-bottom:24px}.main-nav [data-slot=tabs-trigger]{height:65px;font-size:14px}.page-heading{min-height:0;margin-top:25px;gap:18px}.page-heading h1{font-size:34px}.page-heading p{font-size:16px}.stats-row{padding:20px 0}.stat-label{font-size:12px}.stat strong{font-size:25px}.test-card,.create-card{min-height:315px}.test-card h3{font-size:22px}.auth-brand{padding:19px 22px;font-size:16px}.auth-layout{display:flex;flex-direction:column;padding:32px 20px 38px;gap:24px;max-width:480px}.auth-aside{display:block;width:100%;padding:0;order:-1}.auth-aside h2{font-size:33px;margin-bottom:0}.auth-aside-icon,.auth-benefit,.auth-aside-footer{display:none}.auth-form-panel{padding:25px 22px;max-width:none}.auth-form-panel h1{font-size:27px}.auth-footer{padding:18px;font-size:11px}footer{margin-left:20px;margin-right:20px}.stat-icon{display:none}}
 @media(prefers-reduced-motion:reduce){.test-card{transition:none}.test-card:hover{transform:none}}
+
+/* Requested identity, homepage copy and motto; existing reference theme retained. */
+.brand-mark{width:43px;height:57px;flex-shrink:0}
+.gibdd-emblem{display:block;width:100%;height:100%;object-fit:contain}
+.family-greeting{font-size:18px;line-height:1.7;color:#bdcfe0;margin:20px 0 30px}
+.site-motto{display:flex;flex-direction:column;gap:4px;max-width:430px;text-align:right;font-size:13px;line-height:1.5;color:#b7cbe0}
+.site-motto strong{color:#e0ebf5;font-weight:700}
+.home-introduction{margin:35px 0 50px}
+.home-introduction h1{text-align:center;font-size:clamp(26px,3vw,40px);font-weight:700;line-height:1.3;color:#e8edf3;margin:0 0 34px}
+.home-introduction article{background:#0d1929d9;border:1px solid var(--border);border-radius:8px;padding:28px 32px;margin:18px 0;backdrop-filter:blur(10px)}
+.home-introduction h2{font-size:23px;font-weight:700;line-height:1.4;color:#e1ebf5;margin:0 0 18px}
+.home-introduction h3{font-size:16px;font-weight:700;margin:20px 0 10px;color:#d8e6f2}
+.home-introduction p,.home-introduction li{font-size:16px;line-height:1.85;color:#bdcddd}
+.home-introduction p{text-indent:1.8em;margin:12px 0}
+.home-introduction strong{font-weight:700;color:#e0eaf4}
+.home-introduction ul{list-style:disc;padding-left:26px;margin:10px 0 18px}
+.home-introduction li{padding-left:4px;margin:6px 0}
+@media(max-width:900px){.nav-row{height:auto;flex-wrap:wrap;padding-bottom:15px;gap:12px}.site-motto{margin-left:auto}.home-introduction article{padding:23px}}
+@media(max-width:720px){.brand-mark{width:34px;height:45px}.family-greeting{font-size:16px;margin:14px 0 0}.home-introduction{margin:28px 0 35px}.home-introduction h2{font-size:21px}.home-introduction p,.home-introduction li{font-size:15px}.home-introduction article{padding:21px 18px}.site-motto{width:100%;font-size:12px}}
