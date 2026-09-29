@@ -8,14 +8,20 @@ const cache=new Map<string,LawText>();
 const articleWord=(n:number)=>n%100>=11&&n%100<=14?'статей':n%10===1?'статья':n%10>=2&&n%10<=4?'статьи':'статей';
 const normalize=(text:string)=>text.toLocaleLowerCase('ru-RU').replace(/ё/g,'е').replace(/\s+/g,' ').trim();
 
+function lawLocation(){
+ const params=new URLSearchParams(window.location.hash.split('?')[1]||'');
+ const id=params.get('document');const article=params.get('article')||'';
+ return {document:documents.some(d=>d.id===id)?id!:documents[0].id,article:/^article-\d+$/.test(article)?article:''};
+}
 export default function LawsSection(){
-  const [selected,setSelected]=useState(documents[0].id);
+  const [selected,setSelected]=useState(()=>lawLocation().document);
   const [content,setContent]=useState<LawText|null>(null);
   const [query,setQuery]=useState('');
   const [expanded,setExpanded]=useState(true);
   const [error,setError]=useState('');
   const [retry,setRetry]=useState(0);
-  const [jump,setJump]=useState('');
+  const [jump,setJump]=useState(()=>lawLocation().article);
+  useEffect(()=>{const update=()=>{const next=lawLocation();setSelected(next.document);setContent(cache.get(next.document)||null);setQuery('');setExpanded(true);setJump(next.article);};window.addEventListener('hashchange',update);return()=>window.removeEventListener('hashchange',update);},[]);
   const meta=documents.find(d=>d.id===selected)!;
   useEffect(()=>{
     const controller=new AbortController();setError('');setContent(cache.get(selected)||null);
@@ -26,8 +32,8 @@ export default function LawsSection(){
   const entries=useMemo(()=>content?.entries.filter(e=>!needle||normalize([e.title,...e.paragraphs].join(' ')).includes(needle))||[],[content,needle]);
   const chapters=content?.entries.filter(e=>e.kind==='section')||[];
   const found=entries.filter(e=>e.kind==='article').length;
-  useEffect(()=>{if(jump){document.getElementById(`law-${selected}-${jump}`)?.scrollIntoView({behavior:'smooth',block:'start'});setJump('');}},[jump,selected,entries]);
-  const choose=(id:string)=>{setContent(cache.get(id)||null);setSelected(id);setQuery('');setExpanded(true);setJump('');};
+  useEffect(()=>{if(jump&&content?.id===selected){const target=document.getElementById(`law-${selected}-${jump}`);if(target){target.scrollIntoView({behavior:'smooth',block:'start'});setJump('');}}},[jump,selected,entries,content]);
+  const choose=(id:string)=>{setContent(cache.get(id)||null);setSelected(id);setQuery('');setExpanded(true);setJump('');window.location.hash=`laws?document=${id}`;};
   return <section className="laws-library" aria-labelledby="laws-title">
     <div className="eyebrow">УСБ ГИБДД · РОССИЯ ОНЛАЙН</div>
     <h1 id="laws-title">Законы РО</h1>

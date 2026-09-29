@@ -1,3 +1,4 @@
+import EmployeeGuide from './employee-guide';
 import LawsSection from './laws-section';
 import { BookOpen, Scale, ShieldCheck, Link } from 'lucide-react';
 import { siteSections, type SitePage } from './site-header';
@@ -12,6 +13,7 @@ const sections = {
 
 
 export default function InformationSection({page}:{page:SitePage}) {
+  if (page==='new-employees'||page==='duties') return <EmployeeGuide kind={page}/>;
   if (page==='laws') return <LawsSection/>;
   if (!(page in sections)) return null;
   const section=sections[page as keyof typeof sections]; const Icon=section.icon;

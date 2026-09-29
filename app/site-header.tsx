@@ -13,7 +13,7 @@ export const siteSections = [
 export type SitePage = typeof siteSections[number]['id'] | 'account' | 'profile';
 
 export function pageFromHash(): SitePage {
-  const hash = window.location.hash.slice(1);
+  const hash = window.location.hash.slice(1).split('?')[0];
   return hash==='profile'||siteSections.some(section => section.id === hash) ? hash as SitePage : 'account';
 }
 
