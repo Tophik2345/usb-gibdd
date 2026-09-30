@@ -4,11 +4,12 @@ import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { portalApi, type Announcement } from '@/lib/portal-api';
 import { usePortalList } from './use-portal-list';
+import AnnouncementAck from './announcement-ack';
 import { formatSiteDate as when, toSiteDateTimeInput, fromSiteDateTimeInput, SITE_TIME_LABEL } from '@/lib/date-time';
 const kinds={news:'Новости подразделения',rules:'Изменения правил',attestation:'Аттестация'};
 const localDate=(value:string|null)=>value?toSiteDateTimeInput(value):'';
 type Draft=Partial<Announcement>&Pick<Announcement,'title'|'body'|'kind'|'pinned'|'published'>;
-export default function Announcements({canManage=false}:{canManage?:boolean}){
+export default function Announcements({canManage=false,signedIn=false}:{canManage?:boolean;signedIn?:boolean}){
   const [management,setManagement]=useState(false);const [limit,setLimit]=useState(3);
   const {data,loading,error,refresh}=usePortalList<{announcements:Announcement[]}>(management&&canManage?'manageAnnouncements':'announcements');
   const [draft,setDraft]=useState<Draft|null>(null);const [eventDate,setEventDate]=useState('');const [saving,setSaving]=useState(false);const [formError,setFormError]=useState('');
@@ -29,6 +30,7 @@ export default function Announcements({canManage=false}:{canManage?:boolean}){
         <div className="announcement-meta"><span className="badge">{kinds[item.kind]}</span>{item.pinned&&<span><Pin size={14}/>Закреплено</span>}{management&&<span className={'badge '+(item.published?'green-badge':'orange-badge')}>{item.published?'Опубликовано':'Черновик'}</span>}</div>
         <h3>{item.title}</h3>{item.eventAt&&<p className="announcement-event"><CalendarClock size={17}/><time dateTime={item.eventAt}>{when(item.eventAt)}</time></p>}
         <p className="announcement-body">{item.body}</p><div className="announcement-footer"><small>{item.publishedAt?`Опубликовано: ${when(item.publishedAt)}`:`Обновлено: ${when(item.updatedAt)}`}</small>{management&&<button type="button" className="text-button" onClick={()=>edit(item)}><Pencil size={15}/>Редактировать</button>}</div>
+        <AnnouncementAck item={item} signedIn={signedIn} canManage={canManage} onSaved={refresh}/>
       </article>)}</div>}
       {items.length>limit&&<button type="button" className="button outline" onClick={()=>setLimit(n=>n+6)}>Показать ещё · осталось {items.length-limit}</button>}
     </>}
@@ -39,6 +41,8 @@ export default function Announcements({canManage=false}:{canManage?:boolean}){
         <label className="field">Текст<textarea required rows={8} maxLength={6000} value={draft.body} onChange={e=>setDraft({...draft,body:e.target.value})}/></label>
         <label className="portal-checkbox"><input type="checkbox" checked={draft.pinned} onChange={e=>setDraft({...draft,pinned:e.target.checked})}/>Закрепить в начале списка</label>
         <label className="portal-checkbox"><input type="checkbox" checked={draft.published} onChange={e=>setDraft({...draft,published:e.target.checked})}/>Опубликовать для всех посетителей</label>
+        <label className="portal-checkbox"><input type="checkbox" checked={!!draft.requiresAck} onChange={e=>setDraft({...draft,requiresAck:e.target.checked})}/>Запрашивать подтверждение ознакомления</label>
+        {draft.requiresAck&&<p className="portal-note">После изменения объявления сотрудники подтверждают ознакомление с новой версией.</p>}
         <p className="portal-note">Без отметки публикации запись останется черновиком. Чтобы снять объявление с сайта, снимите эту отметку и сохраните.</p>
         {formError&&<p className="inline-error" role="alert">{formError}</p>}<div className="portal-actions"><button type="button" className="button outline" disabled={saving} onClick={()=>setDraft(null)}>Отмена</button><button type="submit" className="button primary" disabled={saving}>{saving?<Loader2 size={17} className="spin"/>:null}{draft.published?'Сохранить публикацию':'Сохранить черновик'}</button></div>
       </form>}

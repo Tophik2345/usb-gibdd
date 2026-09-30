@@ -5,6 +5,7 @@ import Emblem from './emblem';
 export const siteSections = [
   { id: 'home', title: 'Главная' },
   { id: 'tests', title: 'Тест' },
+  { id: 'training', title: 'Подготовка' },
   { id: 'laws', title: 'Законы РО' },
   { id: 'new-employees', title: 'Для новых сотрудников' },
   { id: 'duties', title: 'Обязанности сотрудников УСБ' },

@@ -49,7 +49,7 @@ export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,ini
       <div className="assignment-card-heading"><span className={'badge '+(current==='passed'?'green-badge':current==='overdue'?'orange-badge':current==='cancelled'?'neutral':'blue-badge')}>{labels[current]}</span><span className="subtle">{own?`Автор: ${item.authorLogin}`:`Сотрудник: ${item.employeeLogin}`}</span></div>
       <h2>{item.testTitle}</h2>
       <p className="assignment-deadline"><CalendarClock size={17}/>Срок: <strong>{when(item.dueAt)}</strong></p>
-      <p className="helper">{item.count} вопросов · для зачёта {item.passMark}%</p>
+      <p className="helper">{item.count} вопросов · для зачёта {item.passMark}% · {item.timeLimitMinutes?`${item.timeLimitMinutes} мин. с момента начала — закрытие страницы не останавливает таймер`:"без таймера"}</p>
       {item.completedAt?<p className="assignment-result">Пройден {when(item.completedAt)}{Date.parse(item.completedAt)>Date.parse(item.dueAt)?' · с опозданием':''}</p>:item.lastFinishedAt&&<p className="assignment-result">Последняя попытка: {item.lastScore} из {item.lastTotal}. {pending?'Нужно достичь проходного балла.':''}</p>}
       <div className="assignment-actions">{own? <>
         {pending&&<button className="button primary" disabled={locked} onClick={()=>onStart(item)}><ClipboardCheck size={17}/>{item.inProgressAttemptId?'Продолжить':item.lastFinishedAt?'Пройти ещё раз':'Начать задание'}</button>}

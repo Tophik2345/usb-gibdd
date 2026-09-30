@@ -2,7 +2,7 @@ import { authConfigured, supabase } from './supabase';
 import { WorkspaceError } from './workspace-api';
 
 export type Bookmark = { document: string; article: string };
-export type Announcement = { id: string; title: string; body: string; kind: 'news'|'rules'|'attestation'; eventAt: string|null; pinned: boolean; published: boolean; publishedAt: string|null; updatedAt: string; version: number };
+export type Announcement = { id: string; title: string; body: string; kind: 'news'|'rules'|'attestation'; eventAt: string|null; pinned: boolean; published: boolean; publishedAt: string|null; updatedAt: string; version: number; requiresAck?:boolean; readAt?:string|null };
 export type UsefulLink = { id: string; title: string; description: string; url: string; category: 'forum'|'appeals'|'reports'|'contact'; position: number; published: boolean; version: number };
 export async function portalApi<T>(payload: Record<string, unknown>): Promise<T> {
   if (!authConfigured) throw new WorkspaceError('Сервис временно недоступен.');
