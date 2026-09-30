@@ -8,6 +8,7 @@ export const siteSections = [
   { id: 'laws', title: 'Законы РО' },
   { id: 'new-employees', title: 'Для новых сотрудников' },
   { id: 'duties', title: 'Обязанности сотрудников УСБ' },
+  { id: 'department', title: 'Подразделение' },
   { id: 'links', title: 'Полезные ссылки' },
 ] as const;
 export type SitePage = typeof siteSections[number]['id'] | 'account' | 'profile';

@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react';
 import WorkGallery from './work-gallery';
+import { departmentTabs, departmentLink } from './department-section';
 export default function HomeIntroduction({children}:{children?:ReactNode}) {
   return <section className="home-introduction" aria-labelledby="home-welcome">
     <h1 id="home-welcome">Приветствую вас на сайте УСБ ГибДД</h1>
     {children}
+    <nav className="department-quick-links" aria-label="Сервисы подразделения">{departmentTabs.map(({id,label,description,icon:Icon})=><a key={id} href={departmentLink(id)}><Icon size={24}/><strong>{label}</strong><span>{description}</span></a>)}</nav>
     <WorkGallery />
     <article>
       <h2>Управление собственной безопасности ГИБДД</h2>

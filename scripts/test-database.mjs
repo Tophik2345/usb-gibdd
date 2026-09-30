@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { checkLearning } from './test-learning.mjs';
 import { checkPortal } from './test-portal.mjs';
+import { checkDepartment } from './test-department.mjs';
 
 const root=resolve(import.meta.dirname,'..');
 const db=new PGlite();
@@ -167,5 +168,6 @@ try {
   checks.push('Owner downgrade immediately removes delegation; deputy can edit only own tests, role label is server-owned, owner can revoke deputy authorship');
   await checkLearning({db,asUser,rpc,denied,A,B,C,base,checks,failedAttempt:result});
   await checkPortal({db,asUser,denied,A,B,C,checks});
+  await checkDepartment({db,asUser,denied,A,B,C,checks});
   console.log(JSON.stringify({passed:checks.length,checks,scope:'Actual PostgreSQL engine (PGlite), migrations, database roles and RPC; Auth JWT claims mocked locally'},null,2));
 } finally {await db.close();}

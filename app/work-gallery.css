@@ -7,7 +7,7 @@
 .work-gallery-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
 .work-photo { overflow: hidden; display: flex; flex-direction: column; width: 100%; text-align: left; background: #171e26; border: 1px solid #45505c; border-radius: 10px; cursor: pointer; transition: border-color .18s, box-shadow .18s; }
 .work-photo:nth-child(-n+2) { grid-column: span 2; }
-.work-gallery-grid.is-single { grid-template-columns: minmax(0, 1fr); }
+.work-gallery-grid.is-single { grid-template-columns: minmax(0, 1fr); max-width: 520px; }
 .work-gallery-grid.is-single .work-photo { grid-column: auto; }
 .work-photo > img { display: block; width: 100%; height: auto; aspect-ratio: 1810 / 1018; object-fit: contain; background: #0d1117; }
 .work-photo-caption { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 17px 20px; min-height: 60px; color: #edf1f5; font-size: 14px; line-height: 1.5; }
