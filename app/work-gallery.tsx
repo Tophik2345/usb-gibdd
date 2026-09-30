@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ArrowUpRight, Camera, ChevronLeft, ChevronRight, Expand, X } from 'lucide-react';
+import { Camera, ChevronLeft, ChevronRight, Expand, X } from 'lucide-react';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { workPhotos } from '@/lib/work-photos';
 import './work-gallery.css';
@@ -66,7 +66,6 @@ export default function WorkGallery() {
               <button type="button" onClick={() => move(-1)} aria-label="Предыдущее фото"><ChevronLeft size={21} aria-hidden="true" /></button>
               <button type="button" onClick={() => move(1)} aria-label="Следующее фото"><ChevronRight size={21} aria-hidden="true" /></button>
             </div>}
-            <a href={assetUrl(photo.file)} target="_blank" rel="noopener noreferrer">Открыть оригинал <ArrowUpRight size={15} aria-hidden="true" /></a>
           </div>
         </>}
       </DialogContent>
