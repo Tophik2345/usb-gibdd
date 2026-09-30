@@ -4,8 +4,12 @@ export const normalizeLawText = (text: string) => text.toLocaleLowerCase('ru-RU'
 export function matchesLaw(entry: LawEntry, query: string): boolean {
   const needle = normalizeLawText(query);
   if (!needle) return true;
-  const number = needle.match(/^(?:ст(?:атья|\.)?\s*)?(\d+(?:\.\d+)*?)\.?$/u)?.[1];
-  if (number) return normalizeLawText(entry.title).match(/^статья\s+(\d+(?:\.\d+)*)/u)?.[1] === number;
+  const number = needle.match(/^(?:(статья|ст\.?|пункт|п\.?)\s*)?(\d+(?:\.\d+)*)\.?$/u);
+  if (number) {
+    const heading = normalizeLawText(entry.title).match(/^(статья|пункт)\s+(\d+(?:\.\d+)*)/u);
+    const kind = number[1]?.startsWith('ст') ? 'статья' : number[1] ? 'пункт' : undefined;
+    return heading?.[2] === number[2] && (!kind || heading?.[1] === kind);
+  }
   return normalizeLawText([entry.title,...entry.paragraphs].join(' ')).includes(needle);
 }
 export function lawExcerpt(entry: LawEntry, query: string): string {

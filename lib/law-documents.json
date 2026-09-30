@@ -9,7 +9,12 @@
     "date": "29.09.2026",
     "sourceFile": "Внутренний устав ГИБДД _ Россия Онлайн Форум.pdf",
     "sha256": "dd538ad5da1cbb21ce0382a3c1214dc8479a765f2e4dac49547f878cf9f6cd2f",
-    "textSha256": "5aafad6f0a220d104a6f7dfd6c7f8ec01cf50f0d126114af41da94986f978d16"
+    "textSha256": "5aafad6f0a220d104a6f7dfd6c7f8ec01cf50f0d126114af41da94986f978d16",
+    "unit": "article",
+    "server": "Кутузовский",
+    "editionDate": "14.09.2026",
+    "editionDateLabel": "Последнее редактирование темы в PDF",
+    "editorialNotes": []
   },
   {
     "id": "criminal",
@@ -21,7 +26,12 @@
     "date": "29.09.2026",
     "sourceFile": "Уголовный кодекс РО _ Россия Онлайн Форум.pdf",
     "sha256": "3a4e3fe52fb1f16c0e20aef2d1496c577615fec70e975cd5dc5c85e1ac619d17",
-    "textSha256": "c0409215e90a33052e1b0a8e795c5a875be6922dd54e0a492f15a90fcad365bb"
+    "textSha256": "c0409215e90a33052e1b0a8e795c5a875be6922dd54e0a492f15a90fcad365bb",
+    "unit": "article",
+    "server": "Кутузовский",
+    "editionDate": "27.09.2026",
+    "editionDateLabel": "Дата подписания в PDF",
+    "editorialNotes": []
   },
   {
     "id": "labour",
@@ -33,7 +43,12 @@
     "date": "29.09.2026",
     "sourceFile": "ТРУДОВОЙ КОДЕКС РО _ Россия Онлайн Форум.pdf",
     "sha256": "21abc59e38682756df38987630991d2eb5ab4da8d69e0254f1c75678481718cd",
-    "textSha256": "826741237f4cf29c10d83ccc8bb3cdde79535e10e9a5e9939a726967b3f938d7"
+    "textSha256": "826741237f4cf29c10d83ccc8bb3cdde79535e10e9a5e9939a726967b3f938d7",
+    "unit": "article",
+    "server": "Кутузовский",
+    "editionDate": "27.09.2026",
+    "editionDateLabel": "Дата подписания в PDF",
+    "editorialNotes": []
   },
   {
     "id": "procedure",
@@ -45,7 +60,12 @@
     "date": "29.09.2026",
     "sourceFile": "ПРОЦЕССУАЛЬНЫЙ КОДЕКС РО _ Россия Онлайн Форум.pdf",
     "sha256": "d11ebb84a492d9cb342deb215bdd42031c270780130baa677c4193a5a5ca22fc",
-    "textSha256": "4872618e451d17723743235c87370afa5fb0f174d424099bd2a3298f03c7ca3f"
+    "textSha256": "4872618e451d17723743235c87370afa5fb0f174d424099bd2a3298f03c7ca3f",
+    "unit": "article",
+    "server": "Кутузовский",
+    "editionDate": "27.09.2026",
+    "editionDateLabel": "Дата подписания в PDF",
+    "editorialNotes": []
   },
   {
     "id": "police",
@@ -57,7 +77,12 @@
     "date": "29.09.2026",
     "sourceFile": "ФЕДЕРАЛЬНЫЙ ЗАКОН «О ПОЛИЦИИ» _ Россия Онлайн Форум.pdf",
     "sha256": "3fe2388107a7d8f59f5f24dec1a835f234214f8e8175db9742d7e64518c56758",
-    "textSha256": "a56089ac609c55dfd776d385f1c509a9d4d9b479d4db03e9005112b9cd77e9d5"
+    "textSha256": "a56089ac609c55dfd776d385f1c509a9d4d9b479d4db03e9005112b9cd77e9d5",
+    "unit": "article",
+    "server": "Кутузовский",
+    "editionDate": "25.08.2026",
+    "editionDateLabel": "Дата подписания в PDF",
+    "editorialNotes": []
   },
   {
     "id": "traffic-police",
@@ -69,6 +94,52 @@
     "date": "29.09.2026",
     "sourceFile": "ФЕДЕРАЛЬНЫЙ ЗАКОН«О ГОСУДАРСТВЕННОЙ ИНСПЕКЦИИ БЕЗОПАСНО.pdf",
     "sha256": "0e9992e42235ea4f4e2c30e686c0104016eda0e982e96a821c31a3ed63cc0f2e",
-    "textSha256": "7e55b012766b1b622ed86b9ecbc3fedb751e15b1ad1d1850b56a89ea9047611b"
+    "textSha256": "7e55b012766b1b622ed86b9ecbc3fedb751e15b1ad1d1850b56a89ea9047611b",
+    "unit": "article",
+    "server": "Кутузовский",
+    "editionDate": "25.08.2026",
+    "editionDateLabel": "Последнее редактирование темы в PDF",
+    "editorialNotes": []
+  },
+  {
+    "id": "administrative",
+    "shortTitle": "КоАП РО",
+    "title": "Кодекс РО об административных правонарушениях",
+    "description": "Основания административной ответственности, наказания, производство по делам и дорожные правонарушения.",
+    "articleCount": 108,
+    "unit": "article",
+    "pages": 31,
+    "date": "30.09.2026",
+    "editionDate": "20.09.2026",
+    "editionDateLabel": "Последнее редактирование темы в PDF",
+    "server": "Кутузовский",
+    "sourceFile": "КОДЕКС РО ОБ АДМИНИСТРАТИВНЫХ ПРАВОНАРУШЕНИЯХ _ Россия .pdf",
+    "sha256": "6e5db1e1e8c6f389d54b349fdc04120bc611ed10b033c32b35fcb1ad83edff42",
+    "textSha256": "08b07b138b9b638b5e51e845127ebcd2b8f952c996f4624ff0996f7588e71573",
+    "editorialNotes": [
+      "Статья 5.2, часть 2 ссылается на часть 2 статьи 6.5. Статьи 6.5 в предоставленном документе нет.",
+      "Статья 5.6, часть 2 ссылается на статью 10. В документе есть глава 10 со статьями 10.1–10.8; отдельной статьи 10 нет.",
+      "Статья 14.10 ссылается на статьи 49, 50, 52.1 и 52.2. Таких номеров в предоставленной редакции нет."
+    ]
+  },
+  {
+    "id": "traffic-rules",
+    "shortTitle": "ПДД РО",
+    "title": "Правила дорожного движения РО",
+    "description": "Обязанности участников движения, сигналы, маневрирование, скорость, остановка, стоянка и действия при ДТП.",
+    "articleCount": 131,
+    "unit": "point",
+    "pages": 24,
+    "date": "30.09.2026",
+    "editionDate": "18.09.2026",
+    "editionDateLabel": "Последнее редактирование темы в PDF",
+    "server": "Кутузовский",
+    "sourceFile": "ПРАВИЛА ДОРОЖНОГО ДВИЖЕНИЯ РО _ Россия Онлайн Форум.pdf",
+    "sha256": "55e663dabbd98b6c6f73e758892f56339f8d3f703ff1a861967f1b4c8f3729fe",
+    "textSha256": "b4d9cbde4b407856a735a390d40798d87eac6f652c311137b110b663686162d9",
+    "editorialNotes": [
+      "Пункт 8.4 ссылается на статью 52.1 КоАП. В предоставленном КоАП такой статьи нет; превышению скорости посвящена статья 14.7. Исходная ссылка сохранена без замены.",
+      "В пункте 4.1 оговорка о сигналах регулировщика приведена рядом со ссылкой на раздел 6. Сигналы регулировщика описаны в разделе 5. Формулировка сохранена как в PDF."
+    ]
   }
 ]

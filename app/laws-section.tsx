@@ -7,6 +7,9 @@ import { matchesLaw, lawExcerpt, normalizeLawText, type LawText, type LawEntry }
 const cache = new Map<string,LawText>();
 const pending = new Map<string,Promise<LawText>>();
 const articleWord=(n:number)=>n%100>=11&&n%100<=14?'статей':n%10===1?'статья':n%10>=2&&n%10<=4?'статьи':'статей';
+const pointWord=(n:number)=>n%100>=11&&n%100<=14?'пунктов':n%10===1?'пункт':n%10>=2&&n%10<=4?'пункта':'пунктов';
+const articleCount=documents.filter(d=>d.unit!=='point').reduce((n,d)=>n+d.articleCount,0);
+const pointCount=documents.filter(d=>d.unit==='point').reduce((n,d)=>n+d.articleCount,0);
 function loadDocument(id:string):Promise<LawText>{
   if(cache.has(id))return Promise.resolve(cache.get(id)!);
   if(pending.has(id))return pending.get(id)!;
@@ -81,21 +84,21 @@ export default function LawsSection({signedIn=false}:{signedIn?:boolean}){
   const meta=documents.find(d=>d.id===selected)!;
   const chapters=content?.entries.filter(e=>e.kind==='section')||[];
   return <section className="laws-library" aria-labelledby="laws-title">
-    <div className="eyebrow">УСБ ГИБДД · РОССИЯ ОНЛАЙН</div><h1 id="laws-title">Законы РО</h1>
-    <p className="information-description">Полные тексты статей для изучения и служебной работы в игровом проекте «Россия Онлайн».</p>
-    <div className="laws-overview"><span><strong>{documents.length}</strong> документов</span><span><strong>{documents.reduce((n,d)=>n+d.articleCount,0)}</strong> статьи</span><span>Материалы от 29.09.2026</span></div>
+    <div className="eyebrow">УСБ ГИБДД · КУТУЗОВСКИЙ</div><h1 id="laws-title">Законы РО</h1>
+    <p className="information-description">Полные тексты законов и ПДД сервера «Кутузовский» игрового проекта «Россия Онлайн».</p>
+    <div className="laws-overview"><span><strong>{documents.length}</strong> документов</span><span><strong>{articleCount}</strong> {articleWord(articleCount)}</span><span><strong>{pointCount}</strong> {pointWord(pointCount)} ПДД</span></div>
     <div className="law-search-panel">
       <div className="law-search-scopes" role="group" aria-label="Область поиска">
         <button type="button" aria-pressed={scope==='all'} onClick={()=>setScope('all')}>Все документы</button>
         <button type="button" aria-pressed={scope==='document'} onClick={()=>setScope('document')}>Выбранный документ</button>
         <button type="button" aria-pressed={scope==='favorites'} onClick={()=>setScope('favorites')}><BookmarkIcon size={16}/>Избранное{signedIn&&!bookmarkLoading&&` · ${bookmarks.length}`}</button>
       </div>
-      <label className="law-search"><Search size={20}/><span className="sr-only">Поиск по законам</span><input type="search" maxLength={200} value={query} onChange={e=>setQuery(e.target.value)} placeholder={scope==='all'?'Номер статьи или фраза во всех документах':'Номер статьи, слово или фраза'}/></label>
-      <p className="law-search-hint">Номер находит конкретную статью. Слово или фраза — совпадения в заголовке и тексте.</p>
+      <label className="law-search"><Search size={20}/><span className="sr-only">Поиск по законам</span><input type="search" maxLength={200} value={query} onChange={e=>setQuery(e.target.value)} placeholder={scope==='all'?'Номер статьи, пункта или фраза во всех документах':'Номер статьи, пункта, слово или фраза'}/></label>
+      <p className="law-search-hint">Номер находит точную статью или пункт. Можно уточнить: «ст. 14.7» или «п. 8.2». Слово или фраза — поиск в заголовке и тексте.</p>
       {notice&&<p className="law-feedback" role="status">{notice}{!signedIn&&<> <a href="#account">Войти</a></>}</p>}
       {bookmarkError&&<p className="law-feedback" role="alert">Избранное: {bookmarkError} <button type="button" className="text-button" onClick={()=>setBookmarkRetry(n=>n+1)}>Повторить</button></p>}
     </div>
-    <nav className="law-document-picker" aria-label="Выбор нормативного документа">{documents.map(d=><button type="button" key={d.id} aria-pressed={selected===d.id} onClick={()=>choose(d.id)}><BookOpen size={19}/><span><strong>{d.shortTitle}</strong><small>{d.articleCount} {articleWord(d.articleCount)}</small></span></button>)}</nav>
+    <nav className="law-document-picker" aria-label="Выбор нормативного документа">{documents.map(d=><button type="button" key={d.id} aria-pressed={selected===d.id} onClick={()=>choose(d.id)}><BookOpen size={19}/><span><strong>{d.shortTitle}</strong><small>{d.articleCount} {d.unit==='point'?pointWord(d.articleCount):articleWord(d.articleCount)}</small></span></button>)}</nav>
     {resultMode?<div className="law-results" aria-live="polite">
       {scope==='favorites'&&!signedIn?<div className="portal-empty"><BookmarkIcon size={27}/><h2>Избранное доступно в аккаунте</h2><p>Сохранённые статьи будут доступны после входа с любого устройства.</p><a className="button outline" href="#account">Войти в аккаунт</a></div>:
       (needsAll?searchLoading:!content&&!error)||scope==='favorites'&&bookmarkLoading?<p className="law-loading"><Loader2 className="spin" size={20}/>Загружаем документы…</p>:<>
@@ -111,8 +114,9 @@ export default function LawsSection({signedIn=false}:{signedIn?:boolean}){
       </>}
     </div>:<>
       <div className="law-reading-heading"><h2>{meta.title}</h2><p>{meta.description}</p></div>
-      <div className="law-tools"><button type="button" className="button outline" disabled={!content} onClick={()=>setExpanded(v=>!v)}>{expanded?'Свернуть статьи':'Развернуть статьи'}</button></div>
-      <p className="law-edition">Текст перенесён из предоставленной копии документа от {meta.date}. Нумерация, части и примечания сохранены.</p>
+      <div className="law-tools"><button type="button" className="button outline" disabled={!content} onClick={()=>setExpanded(v=>!v)}>{expanded?'Свернуть':'Развернуть'} {meta.unit==='point'?'пункты':'статьи'}</button></div>
+      <p className="law-edition">Сервер: {meta.server}. Копия получена {meta.date}.{meta.editionDate&&<> {meta.editionDateLabel}: {meta.editionDate}.</>}<br/>Нумерация, части и примечания сохранены. Дата копии не подтверждает актуальность редакции; изменения форума не переносятся автоматически.</p>
+      {meta.editorialNotes.length>0&&<details className="law-edition-notes"><summary>Замечания к ссылкам в исходном документе</summary><p>В предоставленной редакции обнаружены несогласованные ссылки. Они сохранены дословно; перед применением спорной нормы уточните её у уполномоченного руководства.</p><ul>{meta.editorialNotes.map(note=><li key={note}>{note}</li>)}</ul></details>}
       {error?<div className="error-banner" role="alert"><span>{error}</span><button type="button" className="text-button" onClick={()=>setRetry(n=>n+1)}>Повторить</button></div>:!content?<p className="law-loading" role="status"><Loader2 className="spin" size={20}/>Загружаем статьи…</p>:<div className="law-reading-layout">
         <aside className="law-toc"><h3>Оглавление</h3><nav aria-label="Главы выбранного документа">{chapters.map(c=><button type="button" key={c.id} onClick={()=>{setQuery('');setExpanded(true);setJump(c.id);}}>{c.title}</button>)}</nav></aside>
         <div className="law-text" aria-label="Текст выбранного документа">{content.entries.map(entry=>entry.kind==='article'?<details key={`${selected}-${entry.id}-${expanded}`} id={`law-${selected}-${entry.id}`} className="law-article" open={expanded}>

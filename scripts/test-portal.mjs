@@ -66,11 +66,36 @@ export async function checkPortal({db,asUser,denied,A,B,C,checks}){
   const entry=(title,body)=>({kind:'article',id:'article-1',title,paragraphs:[body],chapter:'Глава I',page:1});
   assert(matchesLaw(entry('Статья 1.2 Законность',''),'1.2'));assert(!matchesLaw(entry('Статья 1.2 Законность',''),'1'));
   assert(matchesLaw(entry('Статья 1.2 Законность',''),'ст. 1.2'));assert(matchesLaw(entry('Статья 1.2 Законность',''),'Статья 1.2.'));
+  assert(matchesLaw(entry('Пункт 8.2.','Ограничения скорости'),'8.2'));
+  assert(matchesLaw(entry('Пункт 8.2.','Ограничения скорости'),'п. 8.2'));
+  assert(matchesLaw(entry('Пункт 8.2.','Ограничения скорости'),'Пункт 8.2.'));
+  assert(!matchesLaw(entry('Пункт 8.2.','Ограничения скорости'),'ст. 8.2'));
+  assert(!matchesLaw(entry('Статья 8.2. Дискриминация',''),'п. 8.2'));
+  assert(!matchesLaw(entry('Пункт 8.2.','Ограничения скорости'),'8'));
   assert(matchesLaw(entry('Статья 3','Учёт\n   доказательств'),'УЧЕТ доказательств'));
   assert(!matchesLaw(entry('Статья 3','Фраза'),'несуществующее'));
-  const bodies=['charter','criminal','labour','procedure','police','traffic-police'].map(doc=>JSON.parse(fs.readFileSync(new URL(`../public/laws/${doc}.json`,import.meta.url),'utf8')));
+  const metadata=JSON.parse(fs.readFileSync(new URL('../lib/law-documents.json',import.meta.url),'utf8'));
+  const bodies=metadata.map(doc=>JSON.parse(fs.readFileSync(new URL(`../public/laws/${doc.id}.json`,import.meta.url),'utf8')));
   const articles=bodies.flatMap(doc=>doc.entries.filter(item=>item.kind==='article'));
-  assert.equal(articles.length,573);assert(bodies.filter(doc=>doc.entries.some(e=>e.kind==='article'&&matchesLaw(e,'задержан'))).length>1);
+  assert.equal(articles.length,812);assert(bodies.filter(doc=>doc.entries.some(e=>e.kind==='article'&&matchesLaw(e,'задержан'))).length>1);
+  for(const meta of metadata){
+    const body=bodies.find(doc=>doc.id===meta.id);
+    assert.equal(body.entries.filter(e=>e.kind==='article').length,meta.articleCount);
+    assert.equal(new Set(body.entries.map(e=>e.id)).size,body.entries.length);
+  }
+  const road=bodies.find(doc=>doc.id==='traffic-rules');
+  assert.equal(road.entries.filter(e=>matchesLaw(e,'п. 4.1')).length,1);
+  assert(road.entries.find(e=>matchesLaw(e,'п. 4.1')).paragraphs.join(' ').includes('неотложного служебного задания'));
+  const refs=(await db.query('select document_id,article_id from knowledge_private.law_article_refs order by document_id,article_id')).rows;
+  assert.deepEqual(refs.map(r=>`${r.document_id}/${r.article_id}`).sort(),bodies.flatMap(doc=>doc.entries.filter(e=>e.kind==='article').map(e=>`${doc.id}/${e.id}`)).sort());
+  await asUser(A);
+  await api({action:'setBookmark',document:'traffic-rules',article:'article-65',saved:true});
+  await api({action:'setBookmark',document:'administrative',article:'article-38',saved:true});
+  assert.equal((await api({op:'bookmarks'})).bookmarks.length,2);
+  await asUser(B);assert.deepEqual((await api({op:'bookmarks'})).bookmarks,[{document:'charter',article:'article-8'}]);
+  await asUser(A);
+  await api({action:'setBookmark',document:'traffic-rules',article:'article-65',saved:false});
+  await api({action:'setBookmark',document:'administrative',article:'article-38',saved:false});
   assert(lawExcerpt(entry('Статья 1','А'.repeat(300)+' искомая фраза '+'Б'.repeat(300)),'искомая фраза').includes('искомая фраза'));
-  checks.push('Global search covers all 573 articles, respects exact article numbers, normalizes Ё/Е and whitespace, and excerpts the matching passage');
+  checks.push('Global search covers all 812 articles/points, distinguishes point/article prefixes, and preserves exact numbers; all references match the database and new bookmarks stay private');
 }

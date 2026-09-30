@@ -19,7 +19,7 @@ export function pageFromHash(): SitePage {
 }
 
 export function Logo() {
-  return <div className="brand"><span className="brand-mark"><Emblem/></span><span>УСБ ГибДД<span className="brand-caption">РОССИЯ ОНЛАЙН · ОТДЕЛ УСБ</span></span></div>;
+  return <div className="brand"><span className="brand-mark"><Emblem/></span><span>УСБ ГибДД<span className="brand-caption">РОССИЯ ОНЛАЙН · КУТУЗОВСКИЙ</span></span></div>;
 }
 
 export default function SiteHeader({page,displayName,busy,onLogout,onNavigate}:{

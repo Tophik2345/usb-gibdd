@@ -1,5 +1,6 @@
 import { BookOpen, ClipboardCheck } from 'lucide-react';
 import { newcomerCards, dutyCards } from '@/lib/employee-guides';
+import { roadCards, projectRuleCards, gameplayCards } from '@/lib/road-guides';
 
 const newcomerTopics = [
   { label: 'Перед выходом на службу', card: 1 },
@@ -8,9 +9,12 @@ const newcomerTopics = [
   { label: 'Сила и помощь при ДТП', card: 7 },
   { label: 'Запись и доказательства', card: 9 },
   { label: 'Отчёты и защита прав', card: 12 },
+  { label: 'КоАП и ПДД', card: 13 },
+  { label: 'Правила проекта', card: 'project-rules' },
+  { label: 'Управление в игре', card: 'gameplay' },
 ];
 
-function openTopic(card: number) {
+function openTopic(card: number | string) {
   const target = document.getElementById(`newcomer-card-${card}`);
   if (!target) return;
   target.focus({ preventScroll: true });
@@ -22,7 +26,7 @@ function openTopic(card: number) {
 
 export default function EmployeeGuide({ kind }: { kind: 'new-employees' | 'duties' }) {
   const newcomer = kind === 'new-employees';
-  const cards = newcomer ? newcomerCards : dutyCards;
+  const cards = newcomer ? [...newcomerCards, ...roadCards] : dutyCards;
 
   return (
     <section className="employee-guide">
@@ -34,8 +38,8 @@ export default function EmployeeGuide({ kind }: { kind: 'new-employees' | 'dutie
           : 'Проверки, работа с материалами и пределы полномочий Управления собственной безопасности.'}
       </p>
       <p className="guide-source-note">
-        Памятка по документам игрового проекта «Россия Онлайн», предоставленным 29.09.2026.
-        В каждой карточке можно открыть полный текст нормы.
+        Сервер «Кутузовский». Учебная памятка обновлена 30.09.2026 по предоставленным документам и проверенным материалам проекта.
+        Карточки с законами содержат переходы к полному тексту нормы.
       </p>
 
       {newcomer && (
@@ -80,12 +84,23 @@ export default function EmployeeGuide({ kind }: { kind: 'new-employees' | 'dutie
         ))}
       </div>
 
+      <section className="guide-supplement" id="newcomer-card-project-rules" tabIndex={-1} aria-labelledby="project-rules-title">
+        <h2 id="project-rules-title">Правила проекта для госслужащих</h2>
+        <p className="guide-source-note">Краткая памятка по опубликованным правилам администрации. При разборе ситуации учитывай полный пункт и его исключения.</p>
+        <div className="employee-guide-grid">{projectRuleCards.map(card=><article className="employee-guide-card" key={card.title}><h3>{card.title}</h3><ul>{card.items.map(item=><li key={item}>{item}</li>)}</ul><p className="guide-source-note">{card.reference}</p></article>)}</div>
+      </section>
+      {newcomer&&<section className="guide-supplement" id="newcomer-card-gameplay" tabIndex={-1} aria-labelledby="gameplay-title">
+        <h2 id="gameplay-title">Практика в игре</h2>
+        <p className="guide-source-note">Общие механики ГИБДД из вики проекта. Если назначение клавиш изменено, проверь настройки своего клиента.</p>
+        <div className="employee-guide-grid">{gameplayCards.map(card=><article className="employee-guide-card" key={card.title}><h3>{card.title}</h3><ul>{card.items.map(item=><li key={item}>{item}</li>)}</ul></article>)}</div>
+      </section>}
+
       <div className="guide-test-cta">
         <div>
           <h2>Проверь себя</h2>
           <p>
             {newcomer
-              ? 'Начни с теста «Начальная подготовка сотрудника ГИБДД». Затем пройди тесты по уставу и правилам ГИБДД и по Уголовному кодексу РО.'
+              ? 'Начни с теста «Начальная подготовка сотрудника ГИБДД». Затем пройди тесты по уставу, УК и «КоАП и ПДД — практические ситуации».'
               : 'Пройди тест «УСБ: полномочия и ответственность».'}
             {' '}После завершения доступны пояснения и переходы к статьям.
           </p>
