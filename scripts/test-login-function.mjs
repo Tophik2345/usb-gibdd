@@ -22,3 +22,25 @@ calls=[];assert.equal((await call({login:'Test'})).status,400);assert.equal(call
 assert.equal((await call({...credentials,password:'x'.repeat(5000)})).status,413);
 assert.equal((await handler(new Request('https://function.example.test',{method:'GET'}))).status,405);
 console.log('PASS: session-only response, credential separation, CORS, rate limit, unknown/wrong/unconfirmed accounts, input and method validation. Auth upstream mocked.');
+
+// Supabase's fetch layer may return a 500 without code for a rejected SMTP login.
+const errorExports = {};
+const errorSource = fs.readFileSync(new URL('../lib/auth-errors.ts', import.meta.url), 'utf8');
+vm.runInNewContext(ts.transpileModule(errorSource, {
+ compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
+}).outputText, { exports: errorExports });
+const message = errorExports.authErrorMessage;
+for (const error of [{ status: 500 }, { code: 'unexpected_failure', status: 500 }, { status: 503 }]) {
+ const text = message(error, 'register');
+ assert.match(text, /регистрацию.*сервера.*письма/u);
+ assert.doesNotMatch(text, /логин уже занят|Проверьте соединение|выполнить вход/u);
+}
+assert.match(message({ status: 500 }, 'login'), /Сервис входа временно недоступен/u);
+assert.match(message({ code: 'email_address_not_authorized' }, 'register'), /Отправка писем/u);
+assert.match(message({ code: 'email_not_confirmed' }, 'login'), /Подтвердите почту/u);
+assert.match(message({ code: 'invalid_credentials' }, 'login'), /Неверный логин или пароль/u);
+assert.match(message({ status: 429 }, 'register'), /Слишком много попыток/u);
+assert.match(message(new TypeError('Failed to fetch'), 'register'), /сервером регистрации.*соединение/u);
+assert.doesNotThrow(() => message(null, 'register'));
+assert.doesNotMatch(message({ status: 500, message: 'private SMTP detail' }, 'register'), /private/u);
+console.log('PASS: registration SMTP/server failure, network failure, login, confirmation and rate-limit messages; server details are not exposed.');
