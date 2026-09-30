@@ -5,4 +5,5 @@ import './app/reference-theme.css';
 import './app/portal-theme.css';
 import './app/red-accents.css';
 import './app/training-theme.css';
+import './app/auth-welcome.css';
 createRoot(document.getElementById('root')!).render(<Workspace />);

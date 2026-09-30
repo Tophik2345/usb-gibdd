@@ -1,0 +1,102 @@
+/* Welcome panel for the account page. Authentication controls keep their styles. */
+.auth-layout {
+  max-width: 1240px;
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 1fr);
+  gap: 54px;
+  padding-top: 42px;
+  padding-bottom: 42px;
+}
+
+.auth-aside.auth-welcome {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: 38px;
+  min-width: 0;
+  min-height: 620px;
+  overflow: hidden;
+  padding: 42px;
+  border: 1px solid #9d59664d;
+  border-radius: 20px;
+  background: linear-gradient(155deg, #1b1c24cf 0%, #17191fe0 46%, #16141aef 100%),
+    url('/usb-gibdd-background.webp') 34% center / cover no-repeat;
+  box-shadow: 0 22px 60px #0005, inset 0 1px #ffffff09;
+  color: #f2eff0;
+  text-shadow: none;
+}
+
+.auth-welcome::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 100% 0%, #962e4630, transparent 65%);
+}
+
+.auth-welcome-identity { display: flex; align-items: center; gap: 24px; }
+.auth-welcome-identity .gibdd-emblem { width: 76px; height: auto; flex: 0 0 auto; }
+.auth-welcome-name { margin: 0; font-size: 30px; font-weight: 750; line-height: 1.2; letter-spacing: -.025em; }
+.auth-welcome-server { margin: 10px 0 0; color: #bdabb0; font-size: 10px; font-weight: 600; line-height: 1.65; letter-spacing: .09em; text-transform: uppercase; }
+
+.auth-welcome h2 {
+  margin: 0;
+  color: #f5f1f2;
+  font-size: clamp(30px, 3.15vw, 42px);
+  font-weight: 700;
+  letter-spacing: -.035em;
+  line-height: 1.14;
+  text-shadow: none;
+}
+.auth-welcome-invitation { margin: 17px 0 0; color: #c8c1c5; font-size: 16px; line-height: 1.7; }
+.auth-welcome-family { margin: 29px 0 0; color: #b7abb1; font-size: 14px; line-height: 1.6; }
+.auth-welcome-family strong { display: block; margin-top: 4px; color: #edc6cf; font-size: 21px; font-weight: 600; }
+
+.auth-welcome-motto {
+  margin: 0;
+  padding: 21px 23px;
+  border: 1px solid #9d59662e;
+  border-left: 2px solid #b94860;
+  border-radius: 0 10px 10px 0;
+  background: linear-gradient(100deg, #6123352b, #24191f55);
+}
+.auth-welcome-motto > span { color: #d38c9d; font-size: 10px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.auth-welcome-motto p { margin: 10px 0 0; color: #e8dfe3; font-size: 18px; font-weight: 500; line-height: 1.65; }
+
+@media (min-width: 721px) and (max-width: 1050px) {
+  .auth-layout { gap: 28px; grid-template-columns: minmax(0, 1fr) minmax(330px, 1fr); }
+  .auth-aside.auth-welcome { padding: 30px 26px; }
+  .auth-welcome-identity { gap: 17px; }
+  .auth-welcome-identity .gibdd-emblem { width: 60px; }
+  .auth-welcome-name { font-size: 26px; }
+  .auth-welcome-server { font-size: 9px; letter-spacing: .045em; }
+  .auth-welcome-motto { padding: 18px 16px; }
+  .auth-welcome-motto p { font-size: 16px; }
+}
+
+@media (max-width: 720px) {
+  .auth-layout { display: flex; max-width: 520px; padding: 26px 20px 36px; gap: 22px; }
+  .auth-aside.auth-welcome { min-height: 0; width: 100%; padding: 26px; gap: 27px; border-radius: 16px; }
+  .auth-welcome-identity { gap: 18px; }
+  .auth-welcome-identity .gibdd-emblem { width: 52px; }
+  .auth-welcome-name { font-size: 25px; }
+  .auth-welcome-server { margin-top: 7px; font-size: 9px; letter-spacing: .04em; }
+  .auth-welcome h2 { font-size: 31px; }
+  .auth-welcome-invitation { font-size: 14px; margin-top: 13px; }
+  .auth-welcome-family { margin-top: 19px; font-size: 13px; }
+  .auth-welcome-family strong { font-size: 19px; }
+  .auth-welcome-motto { padding: 17px 18px; }
+  .auth-welcome-motto p { font-size: 16px; }
+}
+
+@media (max-width: 360px) {
+  .auth-aside.auth-welcome { padding: 22px; }
+  .auth-welcome h2 { font-size: 27px; }
+  .auth-welcome-identity { gap: 14px; }
+  .auth-welcome-name { font-size: 23px; }
+  .auth-welcome-motto { padding: 15px 13px; }
+  .auth-welcome-motto p { font-size: 15px; }
+}
