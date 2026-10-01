@@ -1,5 +1,7 @@
 .department-section { padding: 38px 0 55px; }
 .department-heading { margin-bottom: 28px; }
+.department-heading .eyebrow a { text-underline-offset: 4px; }
+.department-heading .eyebrow a:hover, .department-heading .eyebrow a:focus-visible { text-decoration: underline; }
 .department-heading h1 { font-size: clamp(27px, 3vw, 38px); font-weight: 700; margin: 9px 0 12px; }
 .department-heading p, .department-section .portal-note { color: #b6c0c9; line-height: 1.7; }
 .department-tabs { display: flex; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid #68454e; padding-bottom: 18px; margin-bottom: 30px; }

@@ -29,7 +29,14 @@ export default function DepartmentSection({ signedIn, canManage, displayName }: 
   const [current, setCurrent] = useState(route);
   useEffect(() => { const update = () => { setCurrent(route()); window.scrollTo({ top: 0 }); }; window.addEventListener('hashchange', update); return () => window.removeEventListener('hashchange', update); }, []);
   return <section className="department-section" aria-labelledby="department-title">
-    <header className="department-heading"><div className="eyebrow">РОССИЯ ОНЛАЙН · ОТДЕЛ УСБ</div><h1 id="department-title">Подразделение</h1><p>Состав, служебные документы и связь с руководством.</p></header>
+    <header className="department-heading">
+      <div className="eyebrow">
+        <a href="https://forum.russia.online/" target="_blank" rel="noopener noreferrer" title="Форум «Россия Онлайн» — в новой вкладке">РОССИЯ ОНЛАЙН</a>
+        <span aria-hidden="true"> · </span>
+        <a href={departmentLink('staff')} title="Состав отдела УСБ">ОТДЕЛ УСБ</a>
+      </div>
+      <h1 id="department-title">Подразделение</h1><p>Состав, служебные документы и связь с руководством.</p>
+    </header>
     <nav className="department-tabs" aria-label="Разделы подразделения">{departmentTabs.map(({ id, label, icon: Icon }) => <a key={id} href={departmentLink(id)} aria-current={current.tab === id ? 'page' : undefined}><Icon size={19} />{label}</a>)}</nav>
     {!signedIn && current.tab !== 'reports' ? <div className="department-empty"><LogIn size={30} /><h2>{current.tab === 'staff' ? 'Состав доступен сотрудникам' : 'Войдите, чтобы подать обращение'}</h2><p>{current.tab === 'staff' ? 'Войдите в аккаунт с подтверждённой почтой, чтобы открыть служебные профили.' : 'После входа вы сможете отправить обращение, следить за статусом и прочитать ответ руководства.'}</p><a className="button primary" href="#account">Войти в аккаунт</a></div>
       : current.tab === 'staff' ? <StaffSection canManage={canManage} memberId={current.member} />
