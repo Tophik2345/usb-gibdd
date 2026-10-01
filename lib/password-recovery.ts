@@ -1,4 +1,4 @@
-import { siteReturnUrl, supabase } from './supabase';
+import { siteReturnUrl, supabase, updatePasswordForSession } from './supabase';
 
 export type RecoveryState = Readonly<{ email: string; userId: string | null }>;
 const storageKey = 'usb-password-recovery';
@@ -50,7 +50,7 @@ export async function saveRecoveredPassword(password: string, repeated: string, 
   const client = supabase();
   const { data: { session }, error: sessionError } = await client.auth.getSession();
   if (sessionError || session?.user.id !== userId || state?.userId !== userId) throw { code: 'recovery_session_missing' };
-  const { error } = await client.auth.updateUser({ password });
-  if (error) throw error;
+  await updatePasswordForSession(session, password);
+  if (state?.userId !== userId) throw { code: 'recovery_session_missing' };
   // The caller closes recovery only after showing success; no code or password is persisted.
 }

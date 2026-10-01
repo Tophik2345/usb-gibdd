@@ -37,3 +37,16 @@ export async function signInWithLogin(login: string, password: string) {
   const { error } = await supabase().auth.setSession({ access_token: result.access_token, refresh_token: result.refresh_token });
   if (error) throw error;
 }
+
+/** Bind this sensitive write to the verified session, even if another tab signs in. */
+export async function updatePasswordForSession(session: { access_token: string; user: { id: string } }, password: string) {
+  if (!authConfigured) throw { code: 'recovery_session_missing' };
+  const response = await fetch(`${projectUrl}/auth/v1/user`, {
+    method: 'PUT',
+    headers: { apikey: publishableKey, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json', 'X-Supabase-Api-Version': '2024-01-01' },
+    body: JSON.stringify({ password }), signal: AbortSignal.timeout(30000),
+  });
+  const result = await response.json();
+  if (!response.ok) throw { code: result.code || result.error_code, status: response.status };
+  if (result.id !== session.user.id) throw { code: 'recovery_session_missing' };
+}
