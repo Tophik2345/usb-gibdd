@@ -17,7 +17,7 @@ export function authErrorMessage(error: unknown, operation: AuthOperation): stri
     user_already_exists: 'Аккаунт с этой почтой уже существует.',
     email_exists: 'Аккаунт с этой почтой уже существует.',
     email_address_invalid: 'Проверьте адрес электронной почты.',
-    weak_password: 'Используйте более надёжный пароль: не менее 12 символов.',
+    weak_password: 'Используйте более надёжный пароль: не менее 6 символов.',
     over_request_rate_limit: 'Слишком много попыток. Подождите и попробуйте снова.',
     over_email_send_rate_limit: 'Слишком много запросов писем. Попробуйте позже.',
     signup_disabled: 'Регистрация временно закрыта.',

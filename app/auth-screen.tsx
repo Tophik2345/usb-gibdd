@@ -133,7 +133,7 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
         <Input type="email" required maxLength={254} value={email} onChange={event => setEmail(event.target.value)} autoComplete="email" placeholder="name@example.ru" disabled={busy}/>
       </label>}
       <label className="field">Пароль<span className="password-input">
-        <Input type={show ? 'text' : 'password'} value={password} onChange={event => setPassword(event.target.value)} required minLength={mode === 'register' ? 12 : 1} maxLength={128} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} placeholder={mode === 'register' ? 'Не менее 12 символов' : 'Введите пароль'} disabled={busy}/>
+        <Input type={show ? 'text' : 'password'} value={password} onChange={event => setPassword(event.target.value)} required minLength={mode === 'register' ? 6 : 1} maxLength={128} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} placeholder={mode === 'register' ? 'Не менее 6 символов' : 'Введите пароль'} disabled={busy}/>
         <button type="button" disabled={busy} onClick={() => setShow(value => !value)} aria-label={show ? 'Скрыть пароль' : 'Показать пароль'}>{show ? <EyeOff size={18}/> : <Eye size={18}/>}</button>
       </span></label>
       {mode === 'register' && <p className="auth-hint">Используйте отдельный пароль для этого сайта.</p>}

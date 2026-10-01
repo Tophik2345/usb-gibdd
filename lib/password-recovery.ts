@@ -45,7 +45,7 @@ export async function verifyRecoveryCode(email: string, code: string) {
   change({ email: data.session.user.email || address(email), userId: data.session.user.id });
 }
 export async function saveRecoveredPassword(password: string, repeated: string, userId: string) {
-  if (password.length < 12 || password.length > 128) throw { code: 'weak_password' };
+  if (password.length < 6 || password.length > 128) throw { code: 'weak_password' };
   if (password !== repeated) throw { code: 'password_mismatch' };
   const client = supabase();
   const { data: { session }, error: sessionError } = await client.auth.getSession();
