@@ -5,6 +5,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { checkLearning } from './test-learning.mjs';
 import { checkPortal } from './test-portal.mjs';
 import { checkDepartment } from './test-department.mjs';
+import { checkEditor } from './test-editor-database.mjs';
 import { checkResults } from './test-results-database.mjs';
 import { checkAccounts } from './test-accounts.mjs';
 import { checkTrainingCenter } from './test-training-center.mjs';
@@ -175,5 +176,6 @@ try {
   await checkTrainingCenter({db,asUser,rpc,denied,A,B,C,base,checks});
   await checkAccounts({db,asUser,rpc,denied,A,B,C,base,checks});
   await checkResults({db,asUser,rpc,denied,A,B,base,checks});
+  await checkEditor({db,asUser,rpc,denied,base,checks});
   console.log(JSON.stringify({passed:checks.length,checks,scope:'Actual PostgreSQL engine (PGlite), migrations, database roles and RPC; Auth JWT claims mocked locally'},null,2));
 } finally {await db.close();}

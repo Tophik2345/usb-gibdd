@@ -16,7 +16,8 @@
     "test:confirmation": "node scripts/test-email-confirmation.mjs",
     "test:db": "node scripts/test-database.mjs && node scripts/test-login-function.mjs && node scripts/test-date-time.mjs",
     "test:recovery": "node scripts/test-password-recovery.mjs",
-    "test:results": "node scripts/test-results.mjs"
+    "test:results": "node scripts/test-results.mjs",
+    "test:drafts": "node scripts/test-editor-drafts.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",

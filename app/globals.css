@@ -36,3 +36,11 @@
 .results-empty { padding:24px 0; }
 @media(max-width:850px) { .results-filters { grid-template-columns:repeat(2,minmax(0,1fr)); } .results-toolbar { align-items:flex-start; flex-direction:column; } }
 @media(max-width:480px) { .results-filters { grid-template-columns:minmax(0,1fr); padding:16px; } }
+.editor-fields { border:0; padding:0; margin:0; min-width:0; }
+.draft-save-status { display:flex; align-items:flex-start; gap:8px; margin-top:12px; font-size:13px; line-height:1.5; color:#c1cedd; }
+.draft-save-status svg { flex-shrink:0; margin-top:2px; }
+.draft-recovery { padding:16px; border:1px solid var(--border); border-radius:8px; display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
+.draft-recovery p { width:100%; font-size:14px; }
+.editor-footer > span .text-button { display:block; margin-top:8px; }
+.editor-drafts { margin-top:28px; }
+.editor-draft-list { display:grid; gap:12px; }
