@@ -25,6 +25,8 @@ jobs:
       - name: Install package manager
         run: npm install --global pnpm@11.25.0
       - run: pnpm install --frozen-lockfile
+      - name: Verify account changes and stale responses
+        run: pnpm test:session
       - name: Verify database permissions and scoring
         run: pnpm test:db
       - name: Configure Pages

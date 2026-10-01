@@ -13,6 +13,7 @@ import HomeIntroduction from './home-introduction';
 import { workspaceApi as api } from '@/lib/workspace-api';
 import { formatSiteDate } from '@/lib/date-time';
 import { authConfigured, supabase } from '@/lib/supabase';
+import { subscribeToAccount, type AccountScope } from '@/lib/account-session';
 import { Check, Plus, ClipboardCheck, ChartNoAxesCombined, SlidersHorizontal, CircleCheck, Clock3, BookOpen, Users, X, Pencil, Trash2, FileQuestion, ShieldCheck, LogIn, LogOut, Loader2, CheckCheck, Info, Save, LayoutGrid } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -34,6 +35,13 @@ const date=(s:string)=>formatSiteDate(s,{month:'short',year:undefined});
 
 function Blank({title,text,children}:{title:string;text:string;children?:React.ReactNode}){return <Empty className="empty-state"><EmptyHeader><div className="empty-icon"><ClipboardCheck size={27}/></div><EmptyTitle>{title}</EmptyTitle><EmptyDescription>{text}</EmptyDescription></EmptyHeader>{children}</Empty>;}
 export default function Workspace(){
+ const [account,setAccount]=useState<AccountScope|null>(null);
+ useEffect(()=>subscribeToAccount(setAccount),[]);
+ if(!account)return <div className="auth-loading"><Logo/><Loader2 className="spin" size={25}/><p>Загружаем рабочее пространство…</p></div>;
+ // Reset every child state and callback when the authenticated account changes.
+ return <AccountWorkspace key={account.generation}/>;
+}
+function AccountWorkspace(){
  const [page,setPage]=useState<SitePage>(pageFromHash);
  const [data,setData]=useState<WorkspaceData>(emptyData);const [loading,setLoading]=useState(true);const [guest,setGuest]=useState(false);const [error,setError]=useState('');const [tab,setTab]=useState('tests');const [selected,setSelected]=useState<Test|null>(null);const [name,setName]=useState('');const [busy,setBusy]=useState(false);const [attempt,setAttempt]=useState<Attempt|null>(null);const [editor,setEditor]=useState<Test|null>(null);const [resultScope,setResultScope]=useState('mine');
  const [assignmentTestId,setAssignmentTestId]=useState('');

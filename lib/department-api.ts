@@ -1,4 +1,5 @@
-import { authConfigured, supabase } from './supabase';
+import { authConfigured } from './supabase';
+import { accountRpc } from './account-session';
 import { WorkspaceError } from './workspace-api';
 
 export type StaffMember = { userId: string; displayName: string; staticId: string; rank: string; position: string; bio: string; active: boolean; sortOrder: number; version: number; updatedAt: string };
@@ -11,7 +12,7 @@ export const errorMessage = (error: unknown) => error instanceof Error ? error.m
 
 export async function departmentApi<T>(payload: Record<string, unknown>): Promise<T> {
   if (!authConfigured) throw new WorkspaceError('Сервис временно недоступен.');
-  const { data, error } = await supabase().rpc('knowledge_department', { payload });
+  const { data, error } = await accountRpc('knowledge_department', payload);
   if (error) {
     if (/^PT4\d\d$/.test(error.code)) throw new WorkspaceError(error.message, Number(error.code.slice(2)));
     if (/^PGRST30[123]$/.test(error.code) || error.code === '42501') throw new WorkspaceError('Войдите в аккаунт с подтверждённой почтой.', 401);

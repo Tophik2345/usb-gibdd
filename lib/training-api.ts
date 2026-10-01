@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from './supabase';
+import { accountRpc } from './account-session';
 import { WorkspaceError } from './workspace-api';
 
 export type ClearanceStatus = 'preparing'|'pending'|'approved'|'rejected'|'revoked'|'outdated';
@@ -13,7 +13,7 @@ export type Clearance = {
 export type RPHistory = {nodeId:string;question:string;choice:string;correct:boolean;feedback:string;reference?:{label:string;href:string}};
 export type RPRun = {id:string;scenarioId:string;title:string;finishedAt:string|null;history:RPHistory[];node:{id:string;text:string;choices:{id:string;text:string}[]}|null};
 export async function trainingApi<T>(payload:Record<string,unknown>):Promise<T>{
-  const {data,error}=await supabase().rpc('knowledge_training',{payload});
+  const {data,error}=await accountRpc('knowledge_training',payload);
   if(error){
     if(/^PT4\d\d$/.test(error.code))throw new WorkspaceError(error.message,Number(error.code.slice(2)));
     throw new WorkspaceError('Не удалось выполнить действие. Проверьте соединение и повторите.');

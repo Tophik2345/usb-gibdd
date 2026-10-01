@@ -169,6 +169,7 @@ cp .env.example .env.local
 
 ```bash
 pnpm dev
+pnpm test:session
 pnpm test:db
 pnpm build
 pnpm preview

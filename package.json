@@ -12,6 +12,7 @@
     "build": "node scripts/prepare-assets.mjs && tsc --noEmit && vite build",
     "preview": "vite preview",
     "test:time": "node scripts/test-date-time.mjs",
+    "test:session": "node scripts/test-account-session.mjs",
     "test:db": "node scripts/test-database.mjs && node scripts/test-login-function.mjs && node scripts/test-date-time.mjs"
   },
   "dependencies": {
