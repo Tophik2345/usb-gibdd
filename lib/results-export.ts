@@ -13,7 +13,7 @@ export function resultsCsv(rows: Attempt[]) {
   const lines = rows.filter(row => row.finishedAt && row.score !== null).map(row => [
     row.employeeName, row.testTitle, formatSiteDate(row.finishedAt!), row.score!, row.total,
     (row.score! * 100 / row.total).toFixed(1).replace('.', ','), row.passMark, resultStatus(row),
-    row.mode === 'practice' ? 'Работа над ошибками' : row.assignmentId ? (row.assignmentCancelled ? 'Отменённое назначение' : 'По назначению') : row.demo ? 'Демонстрация' : 'Проверка',
+    row.mode === 'practice' ? 'Работа над ошибками' : row.assignmentId ? (row.assignmentReset ? 'Обнулённое назначение' : row.assignmentCancelled ? 'Отменённое назначение' : 'По назначению') : row.demo ? 'Демонстрация' : 'Проверка',
     row.timedOut ? 'Время истекло' : '', row.id,
   ]);
   return '\uFEFF' + [header, ...lines].map(line => line.map(cell).join(';')).join('\r\n') + '\r\n';

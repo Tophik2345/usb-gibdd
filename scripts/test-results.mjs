@@ -16,9 +16,13 @@ function fixture(pages){let calls=[],cancelled=false;const api=compile('../lib/r
 await test('export continues past 500 rows with the same snapshot and explicit account guard',async()=>{
  const rows=Array.from({length:505},(_,i)=>({...row,id:'result-'+i}));const pages=[];
  for(let i=0;i<rows.length;i+=100)pages.push({rows:rows.slice(i,i+100),total:505,snapshot:'fixed-snapshot',nextCursor:i+100<rows.length?{id:'cursor-'+i,finishedAt:'fixed-date'}:null});
- const f=fixture(pages);let progress=[];const text=await f.exportResults('team',f.emptyResultsFilters,f.cancelled,(n,total)=>progress.push([n,total]));
+ const f=fixture(pages);let progress=[];const text=await f.exportResults('all',f.emptyResultsFilters,f.cancelled,(n,total)=>progress.push([n,total]));
  assert.equal(f.calls.length,6);assert.equal(progress.at(-1)[0],505);assert(text.includes('result-504'));
- assert(f.calls.every(c=>c.name==='knowledge_results'&&c.requireSession));assert(f.calls.slice(1).every(c=>c.payload.snapshot==='fixed-snapshot'));
+ assert(f.calls.every(c=>c.name==='knowledge_results'&&c.requireSession&&c.payload.scope==='all'));assert(f.calls.slice(1).every(c=>c.payload.snapshot==='fixed-snapshot'));
+});
+await test('reset assignment results remain in exports with their historical status',()=>{
+ const text=csv.resultsCsv([{...row,assignmentId:'old',assignmentReset:true},{...row,id:'new-result',assignmentId:'new',score:10}]);
+ assert.match(text,/Обнулённое назначение/);assert.match(text,/row-1/);assert.match(text,/new-result/);assert.match(text,/"10";"10";"100,0"/);
 });
 await test('cancellation and an incomplete/changing export cannot produce a partial download',async()=>{
  const f=fixture([{rows:[row],total:2,snapshot:'s',nextCursor:null}]);await assert.rejects(f.exportResults('mine',f.emptyResultsFilters,()=>false,()=>{}),/весь отчёт/);

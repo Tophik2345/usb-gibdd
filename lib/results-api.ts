@@ -2,7 +2,7 @@ import { accountRpc } from './account-session';
 import { WorkspaceError } from './workspace-api';
 import { resultsCsv } from './results-export';
 import type { Attempt } from './types';
-export type ResultScope = 'mine'|'practice'|'team';
+export type ResultScope = 'mine'|'practice'|'team'|'all';
 export type ResultsFilters = { testId: string; employee: string; from: string; to: string; minScore: string; maxScore: string; status: 'all'|'passed'|'failed' };
 export const emptyResultsFilters: ResultsFilters = { testId:'',employee:'',from:'',to:'',minScore:'',maxScore:'',status:'all' };
 export type ResultCursor = { finishedAt: string; id: string };

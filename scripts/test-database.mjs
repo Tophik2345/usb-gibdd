@@ -10,6 +10,7 @@ import { checkResults } from './test-results-database.mjs';
 import { checkAccounts } from './test-accounts.mjs';
 import { checkTrainingCenter } from './test-training-center.mjs';
 import { checkStaffRanks } from './test-staff-ranks.mjs';
+import { checkRankTestPermissions } from './test-rank-test-permissions.mjs';
 
 const root=resolve(import.meta.dirname,'..');
 const db=new PGlite();
@@ -23,7 +24,10 @@ create function auth.jwt() returns jsonb language sql stable as $$ select coales
 create function auth.uid() returns uuid language sql stable as $$ select (auth.jwt()->>'sub')::uuid $$;
 grant usage on schema auth to authenticated, anon;
 insert into auth.users(id,email,raw_user_meta_data) values ('${A}','a@example.test','{"full_name":"Existing User"}'),('${B}','b@example.test','{"full_name":"Другой сотрудник"}'),('${C}','c@example.test','{"full_name":"Третий сотрудник"}');`);
-for(const file of fs.readdirSync(resolve(root,'supabase/migrations')).filter(f=>f.endsWith('.sql')).sort()) await db.exec(fs.readFileSync(resolve(root,'supabase/migrations',file),'utf8'));
+const migrations=fs.readdirSync(resolve(root,'supabase/migrations')).filter(f=>f.endsWith('.sql')).sort();
+const rankTestsMigration='20261001150000_rank_test_permissions.sql';
+// Verify the prior role-based contract before migrating it to the requested rank-based contract.
+for(const file of migrations.filter(f=>f<rankTestsMigration)) await db.exec(fs.readFileSync(resolve(root,'supabase/migrations',file),'utf8'));
 async function asUser(uid,role='authenticated') {
   await db.exec('reset role');
   await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify(uid?{sub:uid,email:uid+'@example.test',user_metadata:{full_name:'Сотрудник'}}:{})]);
@@ -179,5 +183,8 @@ try {
   await checkResults({db,asUser,rpc,denied,A,B,base,checks});
   await checkEditor({db,asUser,rpc,denied,base,checks});
   await checkStaffRanks({db,asUser,rpc,denied,checks});
+  await db.exec('reset role');
+  for(const file of migrations.filter(f=>f>=rankTestsMigration)) await db.exec(fs.readFileSync(resolve(root,'supabase/migrations',file),'utf8'));
+  await checkRankTestPermissions({db,asUser,rpc,denied,base,checks});
   console.log(JSON.stringify({passed:checks.length,checks,scope:'Actual PostgreSQL engine (PGlite), migrations, database roles and RPC; Auth JWT claims mocked locally'},null,2));
 } finally {await db.close();}
