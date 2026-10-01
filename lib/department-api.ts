@@ -2,7 +2,10 @@ import { authConfigured } from './supabase';
 import { accountRpc } from './account-session';
 import { WorkspaceError } from './workspace-api';
 
-export type StaffMember = { userId: string; displayName: string; staticId: string; rank: string; position: string; bio: string; active: boolean; sortOrder: number; version: number; updatedAt: string };
+export type PromotionRank = { name: string; level: number; group: string };
+export type StaffRank = { userId: string; rank: string; rankLevel: number; rankGroup: string; version: number; active: boolean };
+export type StaffMember = StaffRank & { displayName: string; staticId: string; position: string; bio: string; sortOrder: number; updatedAt: string; promotionRanks: PromotionRank[] };
+export type StaffDirectory = { members: StaffMember[]; viewer: StaffRank };
 export const appealKinds = { complaint: 'Жалоба', question: 'Вопрос', proposal: 'Предложение' } as const;
 export const appealStatuses = { new: 'Новое', in_review: 'На рассмотрении', resolved: 'Рассмотрено', rejected: 'Отклонено' } as const;
 export type AppealStatus = keyof typeof appealStatuses;
