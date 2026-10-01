@@ -27,3 +27,12 @@
 .account-actions, .account-pagination { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .account-pagination { justify-content: center; margin-top: 24px; }
 @media (max-width: 680px) { .account-row { flex-wrap: wrap; } .account-actions { width: 100%; } }
+.results-filters { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; padding:20px; margin:20px 0; background:#171e26; border:1px solid var(--border); border-radius:12px; }
+.results-filters .field { min-width:0; }
+.results-filters select { width:100%; min-width:0; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:#232a32; color:var(--foreground); font:inherit; }
+.results-filter-actions { display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px; }
+.results-toolbar { display:flex; justify-content:space-between; align-items:center; gap:16px; margin:20px 0; }
+.results-toolbar > div { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
+.results-empty { padding:24px 0; }
+@media(max-width:850px) { .results-filters { grid-template-columns:repeat(2,minmax(0,1fr)); } .results-toolbar { align-items:flex-start; flex-direction:column; } }
+@media(max-width:480px) { .results-filters { grid-template-columns:minmax(0,1fr); padding:16px; } }

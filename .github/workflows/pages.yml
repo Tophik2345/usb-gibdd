@@ -31,6 +31,8 @@ jobs:
         run: pnpm test:confirmation
       - name: Verify password recovery and code cooldown
         run: pnpm test:recovery
+      - name: Verify filtered results export
+        run: pnpm test:results
       - name: Verify database permissions and scoring
         run: pnpm test:db
       - name: Configure Pages
