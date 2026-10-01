@@ -29,6 +29,8 @@ jobs:
         run: pnpm test:session
       - name: Verify registration codes and repeat confirmation
         run: pnpm test:confirmation
+      - name: Verify password recovery and code cooldown
+        run: pnpm test:recovery
       - name: Verify database permissions and scoring
         run: pnpm test:db
       - name: Configure Pages

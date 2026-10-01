@@ -5,6 +5,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { checkLearning } from './test-learning.mjs';
 import { checkPortal } from './test-portal.mjs';
 import { checkDepartment } from './test-department.mjs';
+import { checkAccounts } from './test-accounts.mjs';
 import { checkTrainingCenter } from './test-training-center.mjs';
 
 const root=resolve(import.meta.dirname,'..');
@@ -14,7 +15,7 @@ const B='22222222-2222-4222-8222-222222222222';
 const C='33333333-3333-4333-8333-333333333333';
 const checks=[];
 await db.exec(`create role anon; create role authenticated; create role service_role; create schema auth;
-create table auth.users(id uuid primary key, email text, raw_user_meta_data jsonb default '{}'::jsonb, email_confirmed_at timestamptz default now());
+create table auth.users(id uuid primary key, email text, raw_user_meta_data jsonb default '{}'::jsonb, email_confirmed_at timestamptz default now(),created_at timestamptz default now(),banned_until timestamptz);
 create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims',true),'')::jsonb,'{}'::jsonb) $$;
 create function auth.uid() returns uuid language sql stable as $$ select (auth.jwt()->>'sub')::uuid $$;
 grant usage on schema auth to authenticated, anon;
@@ -171,5 +172,6 @@ try {
   await checkPortal({db,asUser,denied,A,B,C,checks});
   await checkDepartment({db,asUser,denied,A,B,C,checks});
   await checkTrainingCenter({db,asUser,rpc,denied,A,B,C,base,checks});
+  await checkAccounts({db,asUser,rpc,denied,A,B,C,base,checks});
   console.log(JSON.stringify({passed:checks.length,checks,scope:'Actual PostgreSQL engine (PGlite), migrations, database roles and RPC; Auth JWT claims mocked locally'},null,2));
 } finally {await db.close();}

@@ -7,6 +7,9 @@ import { authConfigured, discordEnabled, siteReturnUrl, signInWithLogin, supabas
 import { authErrorMessage } from '@/lib/auth-errors';
 import { resendSignupCode, verifySignupCode } from '@/lib/email-confirmation';
 import Emblem from './emblem';
+import { beginRecovery } from '@/lib/password-recovery';
+import { useCodeCooldown } from '@/lib/code-cooldown';
+import { checkSignupLogin } from '@/lib/signup-validation';
 
 export default function AuthScreen({ onSuccess, header }: { onSuccess: () => void; header: React.ReactNode }) {
   const [mode, setMode] = useState('login');
@@ -20,6 +23,7 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
   const [confirming, setConfirming] = useState(false);
   const [code, setCode] = useState('');
   const emailInput = useRef<HTMLInputElement>(null);
+  const wait = useCodeCooldown('signup', email);
   const busy = pending !== null;
   const ready = authConfigured;
   const discord = ready && discordEnabled;
@@ -39,6 +43,7 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
     setPending('submit'); setError(''); setNotice('');
     try {
       if (mode === 'register') {
+        await checkSignupLogin(name);
         const { data, error } = await supabase().auth.signUp({
           email: email.trim().toLowerCase(), password,
           options: {
@@ -47,9 +52,10 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
           },
         });
         if (error) throw error;
+        if (data.user?.identities?.length === 0) throw { code: 'email_exists' };
         setPassword('');
         if (!data.session) {
-          setConfirming(true); setCode('');
+          wait.start(); setConfirming(true); setCode('');
           setNotice('Проверьте почту и папку «Спам». Введите код из последнего письма. Если аккаунт уже подтверждён, перейдите к входу.');
           return;
         }
@@ -64,10 +70,11 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
   };
 
   const resend = async () => {
-    if (busy || !ready || !emailInput.current?.reportValidity()) return;
+    if (busy || !ready || wait.remaining || !emailInput.current?.reportValidity()) return;
     setPending('resend'); setError(''); setNotice('');
     try {
       await resendSignupCode(email);
+      wait.start();
       setCode('');
       setNotice('Запрос на повторную отправку принят. Проверьте почту и папку «Спам»; используйте код из последнего письма. Если почта уже подтверждена, перейдите к входу.');
     } catch (error) {
@@ -114,8 +121,8 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
       <button className="button primary full" type="submit" disabled={busy || !ready}>
         {pending === 'verify' ? <Loader2 className="spin" size={18}/> : <ShieldCheck size={18}/>} {pending === 'verify' ? 'Подтверждаем…' : 'Подтвердить почту'}
       </button>
-      <button className="button outline full" type="button" disabled={busy || !ready} onClick={resend}>
-        {pending === 'resend' && <Loader2 className="spin" size={18}/>} {pending === 'resend' ? 'Отправляем…' : 'Отправить код повторно'}
+      <button className="button outline full" type="button" disabled={busy || !ready || wait.remaining > 0} onClick={resend}>
+        {pending === 'resend' && <Loader2 className="spin" size={18}/>} {pending === 'resend' ? 'Отправляем…' : wait.remaining ? `Повторная отправка через ${wait.remaining} с` : 'Отправить код повторно'}
       </button>
       <button className="text-button" type="button" disabled={busy} onClick={() => { setConfirming(false); setCode(''); setError(''); setNotice(''); }}>Вернуться к регистрации</button>
     </form> : <form onSubmit={submit} className="auth-form">
@@ -134,6 +141,7 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
       <button className="button primary full" type="submit" disabled={busy || !ready}>
         {pending === 'submit' ? <Loader2 className="spin" size={18}/> : <LockKeyhole size={18}/>} {mode === 'login' ? 'Войти' : 'Создать аккаунт'}
       </button>
+      {mode === 'login' && <button className="text-button" type="button" disabled={busy || !ready} onClick={() => beginRecovery(email)}>Забыли пароль?</button>}
       {mode === 'register' && <button className="text-button" type="button" disabled={busy} onClick={() => { setConfirming(true); setCode(''); setError(''); setNotice(''); }}>Уже получали код? Подтвердить почту</button>}
     </form>}
   </>;

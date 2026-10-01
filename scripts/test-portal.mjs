@@ -59,7 +59,7 @@ export async function checkPortal({db,asUser,denied,A,B,C,checks}){
   const rls=(await db.query("select relname,relrowsecurity from pg_class where relnamespace='knowledge_private'::regnamespace and relname in ('law_article_refs','law_bookmarks','announcements','useful_links')")).rows;
   assert.equal(rls.length,4);assert(rls.every(row=>row.relrowsecurity));
   const exposed=(await db.query("select p.proname from pg_proc p where p.pronamespace='knowledge_private'::regnamespace and has_function_privilege('anon',p.oid,'execute')")).rows;
-  assert.deepEqual(exposed.map(row=>row.proname),['portal']);
+  assert.deepEqual(exposed.map(row=>row.proname).sort(),['portal','signup_check']);
   checks.push('Revocation takes effect immediately; unconfirmed accounts cannot bookmark; RLS and private helper privileges stay restricted');
   const module=ts.transpileModule(fs.readFileSync(new URL('../lib/law-search.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ES2022,target:ts.ScriptTarget.ES2022}}).outputText;
   const {matchesLaw,lawExcerpt}=await import('data:text/javascript;base64,'+Buffer.from(module).toString('base64'));

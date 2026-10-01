@@ -20,3 +20,10 @@
 @media(max-width:720px){.auth-page{padding:24px 22px 0;max-width:500px}.auth-layout{display:block;padding:42px 0}.auth-aside{display:none}.auth-brand{font-size:20px}.auth-form-panel h1{font-size:30px}.auth-private{font-size:12px}.auth-footer{text-align:center}.auth-tabs [data-slot=tabs-trigger]{font-size:14px}}
 
 .auth-success{font-size:14px;line-height:1.6;padding:14px 16px;border:1px solid #91cbb0;background:#142b23;color:#91cbb0;border-radius:8px;margin-bottom:18px}
+
+.recovery-layout { grid-template-columns: minmax(0, 520px); justify-content: center; }
+.account-management { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border); }
+.account-row .creator-name { min-width: 0; overflow-wrap: anywhere; }
+.account-actions, .account-pagination { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.account-pagination { justify-content: center; margin-top: 24px; }
+@media (max-width: 680px) { .account-row { flex-wrap: wrap; } .account-actions { width: 100%; } }

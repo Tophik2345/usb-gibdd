@@ -3,8 +3,11 @@ import QuestionExplanation from './question-explanation';
 import Announcements from './announcements';
 import AssignmentsPanel from './assignments-panel';
 'use client';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useSyncExternalStore } from 'react';
 import AuthScreen from './auth-screen';
+import PasswordRecovery from './password-recovery';
+import AccountManagement from './account-management';
+import { recoverySnapshot, subscribeRecovery, trackPasswordRecovery } from '@/lib/password-recovery';
 import SiteHeader, { Logo, pageFromHash, type SitePage } from './site-header';
 import InformationSection from './information-section';
 import CreatorAccess from './creator-access';
@@ -36,7 +39,9 @@ const date=(s:string)=>formatSiteDate(s,{month:'short',year:undefined});
 function Blank({title,text,children}:{title:string;text:string;children?:React.ReactNode}){return <Empty className="empty-state"><EmptyHeader><div className="empty-icon"><ClipboardCheck size={27}/></div><EmptyTitle>{title}</EmptyTitle><EmptyDescription>{text}</EmptyDescription></EmptyHeader>{children}</Empty>;}
 export default function Workspace(){
  const [account,setAccount]=useState<AccountScope|null>(null);
- useEffect(()=>subscribeToAccount(setAccount),[]);
+ const recovery=useSyncExternalStore(subscribeRecovery,recoverySnapshot,()=>null);
+ useEffect(()=>{if(authConfigured)trackPasswordRecovery();return subscribeToAccount(setAccount);},[]);
+ if(recovery)return <PasswordRecovery recovery={recovery} header={<SiteHeader page="account" onNavigate={page=>{window.location.hash=page;}}/>}/>;
  if(!account)return <div className="auth-loading"><Logo/><Loader2 className="spin" size={25}/><p>Загружаем рабочее пространство…</p></div>;
  // Reset every child state and callback when the authenticated account changes.
  return <AccountWorkspace key={account.generation}/>;
@@ -80,7 +85,7 @@ function AccountWorkspace(){
  <TabsContent value="assignments"><AssignmentsPanel data={data} busy={busy} initialTestId={assignmentTestId} onStart={startAssignment} onOpen={openAttempt} onRefresh={refresh}/></TabsContent>
  <TabsContent value="results"><section className="page-heading"><div><div className="eyebrow">ИТОГИ ПРОВЕРОК</div><h1>Результаты<span className="heading-dot">.</span></h1><p>Завершённые попытки и достигнутый проходной балл.</p></div></section><Tabs value={resultScope} onValueChange={setResultScope}><TabsList className="scope-tabs"><TabsTrigger value="mine">Мои результаты</TabsTrigger><TabsTrigger value="practice">Тренировки</TabsTrigger><TabsTrigger value="team">По моим тестам</TabsTrigger></TabsList><TabsContent value="mine"><ResultsTable rows={finished} own onOpen={openAttempt}/></TabsContent><TabsContent value="practice"><p className="table-caption">Работа над ошибками. Эти попытки не меняют оценку исходного теста, средний результат и статус назначений.</p><ResultsTable rows={trainings} own onOpen={openAttempt}/></TabsContent><TabsContent value="team"><p className="table-caption">Результаты сотрудников по созданным вами тестам. Видны только вам.</p><ResultsTable rows={data.team}/></TabsContent></Tabs></TabsContent>
  {canCreate&&<TabsContent value="manage"><section className="page-heading"><div><div className="eyebrow">ДЛЯ РУКОВОДИТЕЛЯ</div><h1>Мои тесты<span className="heading-dot">.</span></h1><p>Создавайте вопросы, задавайте проходной балл и открывайте тесты сотрудникам.</p></div><button className="button primary" disabled={guest||loading} onClick={newTest}><Plus size={18}/>Создать тест</button></section>{data.managed.length===0?<Blank title="Начните с первого теста" text="Добавьте свои вопросы и отметьте правильные ответы. Редактировать тест и видеть результаты сотрудников сможет только автор."><button className="button primary" disabled={guest||loading} onClick={newTest}><Plus size={18}/>Создать тест</button></Blank>:<div className="manage-list">{data.managed.map(t=><article className="manage-row" key={t.id}><span className="stat-icon blue"><ClipboardCheck size={22}/></span><div className="manage-title"><h3>{t.title}</h3><span>{t.count} вопросов · проходной балл {t.passMark}%</span></div><span className={'badge '+(t.published?'green-badge':'neutral')}>{t.published?'Доступен':'Черновик'}</span>{t.published&&<button className="button outline" disabled={busy} onClick={()=>{setAssignmentTestId(t.id);setTab('assignments');}}>Назначить</button>}<button className="button outline" disabled={busy} onClick={()=>editTest(t.id)}><Pencil size={16}/>Редактировать</button></article>)}</div>}<div className="privacy-note"><ShieldCheck size={19}/><p>Опубликованные тесты доступны тем, у кого есть доступ к сайту. Участники видят свои результаты, автор — результаты по своим тестам.</p></div></TabsContent>}
- {canManageCreators&&<TabsContent value="access"><CreatorAccess/></TabsContent>}
+ {canManageCreators&&<TabsContent value="access"><CreatorAccess/><AccountManagement/></TabsContent>}
  </Tabs>}</main>
  <Dialog open={!!selected} onOpenChange={v=>{if(!v&&!busy)setSelected(null);}}><DialogContent className="start-dialog"><DialogHeader><div className="modal-symbol"><ClipboardCheck size={26}/></div><DialogTitle>{selected?.title}</DialogTitle><DialogDescription>Один верный ответ в каждом вопросе. {selected?.timeLimitMinutes?`На прохождение — ${selected.timeLimitMinutes} мин. Таймер продолжает идти после закрытия страницы. Неотвеченные вопросы считаются неверными.`:'Время не ограничено.'}</DialogDescription></DialogHeader><div className="start-facts"><span><strong>{selected?.count}</strong> вопросов</span><span><strong>{selected?.passMark}%</strong> для зачёта</span></div><label className="field">Имя сотрудника<input maxLength={100} value={name} onChange={e=>setName(e.target.value)} placeholder="Имя и фамилия" autoComplete="name"/></label><p className="helper">Это имя будет указано в результате проверки.</p>{error&&<p className="inline-error" role="alert">{error}</p>}<button className="button primary full" disabled={busy||name.trim().length<2} onClick={start}>{busy?<Loader2 size={18} className="spin"/>:<ClipboardCheck size={18}/>}Начать проверку</button></DialogContent></Dialog>
  {attempt&&<TestSession key={attempt.id} attempt={attempt} onChange={next=>{setAttempt(next);if(next.finishedAt)refresh();}} onClose={()=>{setAttempt(null);refresh();}}/>}

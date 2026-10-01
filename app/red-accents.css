@@ -15,7 +15,7 @@
 .site-navigation > a:hover { background: #98374917; color: #fbe1e5; }
 .site-navigation > a[aria-current=page] { background: #9837492b; color: #ffe1e6; }
 .site-navigation > a[aria-current=page]::after { background: #d87283; }
-.main-nav [data-slot=tabs-trigger][data-state=active] { color: #f3c5ce; border-color: #d87283; }
+.main-nav [data-slot=tabs-trigger][data-state=active] { color: #f3c5ce !important; border-color: #d87283; }
 .main-nav [data-slot=tabs-trigger][data-state=active]::after { background: #d87283; }
 
 .button.primary { background: var(--primary); border-color: #cf6978; color: #fff; }
