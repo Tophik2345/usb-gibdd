@@ -3,6 +3,7 @@ import { BookOpen, Search, Loader2, ChevronDown, Bookmark as BookmarkIcon, Arrow
 import documents from '@/lib/law-documents.json';
 import { portalApi, type Bookmark } from '@/lib/portal-api';
 import { matchesLaw, lawExcerpt, normalizeLawText, type LawText, type LawEntry } from '@/lib/law-search';
+import SectionLinks from './section-links';
 
 const cache = new Map<string,LawText>();
 const pending = new Map<string,Promise<LawText>>();
@@ -84,7 +85,7 @@ export default function LawsSection({signedIn=false}:{signedIn?:boolean}){
   const meta=documents.find(d=>d.id===selected)!;
   const chapters=content?.entries.filter(e=>e.kind==='section')||[];
   return <section className="laws-library" aria-labelledby="laws-title">
-    <div className="eyebrow">УСБ ГИБДД · КУТУЗОВСКИЙ</div><h1 id="laws-title">Законы РО</h1>
+    <SectionLinks section="laws"/><h1 id="laws-title">Законы РО</h1>
     <p className="information-description">Полные тексты законов и ПДД сервера «Кутузовский» игрового проекта «Россия Онлайн».</p>
     <div className="laws-overview"><span><strong>{documents.length}</strong> документов</span><span><strong>{articleCount}</strong> {articleWord(articleCount)}</span><span><strong>{pointCount}</strong> {pointWord(pointCount)} ПДД</span></div>
     <div className="law-search-panel">

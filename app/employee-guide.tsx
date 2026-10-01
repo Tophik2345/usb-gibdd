@@ -1,6 +1,7 @@
 import { BookOpen, ClipboardCheck } from 'lucide-react';
 import { newcomerCards, dutyCards } from '@/lib/employee-guides';
 import { roadCards, projectRuleCards, gameplayCards } from '@/lib/road-guides';
+import SectionLinks from './section-links';
 
 const newcomerTopics = [
   { label: 'Перед выходом на службу', card: 1 },
@@ -30,7 +31,7 @@ export default function EmployeeGuide({ kind }: { kind: 'new-employees' | 'dutie
 
   return (
     <section className="employee-guide">
-      <div className="eyebrow">УСБ ГИБДД · ПОДГОТОВКА СОТРУДНИКОВ</div>
+      <SectionLinks section={kind}/>
       <h1>{newcomer ? 'Для новых сотрудников' : 'Обязанности сотрудников УСБ'}</h1>
       <p className="information-description">
         {newcomer

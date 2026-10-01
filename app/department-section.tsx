@@ -3,6 +3,7 @@ import { Users, FileText, MessageSquare, LogIn, Loader2 } from 'lucide-react';
 import StaffSection from './staff-section';
 import ReportTemplates from './report-templates';
 import AppealsSection from './appeals-section';
+import SectionLinks from './section-links';
 import './department.css';
 
 export const departmentTabs = [
@@ -30,11 +31,7 @@ export default function DepartmentSection({ signedIn, canManage, displayName }: 
   useEffect(() => { const update = () => { setCurrent(route()); window.scrollTo({ top: 0 }); }; window.addEventListener('hashchange', update); return () => window.removeEventListener('hashchange', update); }, []);
   return <section className="department-section" aria-labelledby="department-title">
     <header className="department-heading">
-      <div className="eyebrow">
-        <a href="https://forum.russia.online/" target="_blank" rel="noopener noreferrer" title="Форум «Россия Онлайн» — в новой вкладке">РОССИЯ ОНЛАЙН</a>
-        <span aria-hidden="true"> · </span>
-        <a href={departmentLink('staff')} title="Состав отдела УСБ">ОТДЕЛ УСБ</a>
-      </div>
+      <SectionLinks section="department"/>
       <h1 id="department-title">Подразделение</h1><p>Состав, служебные документы и связь с руководством.</p>
     </header>
     <nav className="department-tabs" aria-label="Разделы подразделения">{departmentTabs.map(({ id, label, icon: Icon }) => <a key={id} href={departmentLink(id)} aria-current={current.tab === id ? 'page' : undefined}><Icon size={19} />{label}</a>)}</nav>

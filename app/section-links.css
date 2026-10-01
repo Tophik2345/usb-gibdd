@@ -1,0 +1,5 @@
+.section-links { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.section-links-item { display: inline-flex; align-items: baseline; gap: 8px; min-width: 0; max-width: 100%; }
+.section-links-separator { flex-shrink: 0; }
+.section-links a { min-width: 0; color: inherit; border-radius: 2px; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); text-underline-offset: 4px; }
+.section-links a:hover, .section-links a:focus-visible { text-decoration-color: currentColor; }

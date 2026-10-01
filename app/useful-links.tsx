@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { portalApi, type UsefulLink } from '@/lib/portal-api';
 import { usePortalList } from './use-portal-list';
+import SectionLinks from './section-links';
 const categories={forum:'Форум и нормативные материалы',appeals:'Обращения',reports:'Отчёты',contact:'Связь с руководством'};
 const hostname=(url:string)=>{try{return new URL(url).hostname;}catch{return 'Внешняя ссылка';}};
 type Draft=Partial<UsefulLink>&Pick<UsefulLink,'title'|'description'|'url'|'category'|'position'|'published'>;
@@ -17,7 +18,7 @@ export default function UsefulLinks({canManage=false}:{canManage?:boolean}){
     catch(e:any){setFormError(e.message||'Проверьте адрес ссылки.');}finally{setSaving(false);}
   };
   return <section className="useful-links portal-section" aria-labelledby="links-title">
-    <div className="eyebrow">УСБ ГИБДД · РОССИЯ ОНЛАЙН</div><div className="portal-heading"><h1 id="links-title">Полезные ссылки</h1>{canManage&&<div className="portal-actions"><button type="button" className="button outline" onClick={()=>setManagement(v=>!v)}>{management?'Публичный вид':'Управление ссылками'}</button><button type="button" className="button primary" onClick={()=>edit()}><Plus size={17}/>Добавить ссылку</button></div>}</div>
+    <SectionLinks section="links"/><div className="portal-heading"><h1 id="links-title">Полезные ссылки</h1>{canManage&&<div className="portal-actions"><button type="button" className="button outline" onClick={()=>setManagement(v=>!v)}>{management?'Публичный вид':'Управление ссылками'}</button><button type="button" className="button primary" onClick={()=>edit()}><Plus size={17}/>Добавить ссылку</button></div>}</div>
     <p className="information-description">Форум, нормативные материалы, обращения, отчёты и каналы связи подразделения.</p>
     {management&&<p className="portal-note">Добавьте точные адреса форм и каналов подразделения. Ссылки с отметкой «Показывать на сайте» доступны всем посетителям.</p>}
     {loading?<p className="portal-loading" role="status"><Loader2 size={18} className="spin"/>Загружаем ссылки…</p>:error?<div className="error-banner" role="alert"><span>{error}</span><button type="button" className="text-button" onClick={refresh}>Повторить</button></div>:
