@@ -5,7 +5,7 @@ import { useDepartmentData } from './use-department-data';
 import MyTasks from './my-tasks';
 import './staff-ranks.css';
 
-export default function UserProfile({data,busy,workspaceError,onRefresh,onAssignments,onStartAssignment,onOpenAttempt,onResults,onTests,onAccess}:{data:Workspace;busy:boolean;workspaceError:string;onRefresh:()=>Promise<void>;onAssignments:()=>void;onStartAssignment:(assignment:Assignment)=>void;onOpenAttempt:(id:string)=>void;onResults:()=>void;onTests:()=>void;onAccess:()=>void}) {
+export default function UserProfile({data,busy,workspaceError,onRefresh,onAssignments,onStartAssignment,onOpenAttempt,onResults,onTests,onAccess,onDashboard}:{data:Workspace;busy:boolean;workspaceError:string;onRefresh:()=>Promise<void>;onAssignments:()=>void;onStartAssignment:(assignment:Assignment)=>void;onOpenAttempt:(id:string)=>void;onResults:()=>void;onTests:()=>void;onAccess:()=>void;onDashboard?:()=>void}) {
   const rank=useDepartmentData<StaffRank>({op:'myRank'});
   const finished=data.attempts.filter(attempt=>attempt.finishedAt&&attempt.mode!=='practice');
   const average=finished.length?Math.round(finished.reduce((total,attempt)=>total+(attempt.score||0)/attempt.total*100,0)/finished.length):null;
@@ -19,6 +19,6 @@ export default function UserProfile({data,busy,workspaceError,onRefresh,onAssign
     </div>
     <MyTasks data={data} busy={busy} workspaceError={workspaceError} onRefresh={onRefresh} onAssignments={onAssignments} onStartAssignment={onStartAssignment} onOpenAttempt={onOpenAttempt}/>
     <div className="profile-statistics"><article><span>Завершено попыток</span><strong>{finished.length}</strong></article><article><span>Средний результат</span><strong>{average===null?'—':average+'%'}</strong></article></div>
-    <div className="profile-actions"><a className="button outline" href="#training"><ShieldCheck size={18}/>Подготовка и допуск</a><a className="button outline" href="#department?tab=staff"><Users size={18}/>Состав и звания</a><button type="button" className="button primary" onClick={onResults}><ChartNoAxesCombined size={18}/>Мои результаты</button><button type="button" className="button outline" onClick={onTests}><BookOpen size={18}/>Перейти к тестам</button>{data.permissions.canManageCreators&&<button type="button" className="button outline" onClick={onAccess}><Users size={18}/>Управление авторами</button>}</div>
+    <div className="profile-actions">{onDashboard&&<button type="button" className="button outline" onClick={onDashboard}><ChartNoAxesCombined size={18}/>Сводка руководителя</button>}<a className="button outline" href="#training"><ShieldCheck size={18}/>Подготовка и допуск</a><a className="button outline" href="#department?tab=staff"><Users size={18}/>Состав и звания</a><button type="button" className="button primary" onClick={onResults}><ChartNoAxesCombined size={18}/>Мои результаты</button><button type="button" className="button outline" onClick={onTests}><BookOpen size={18}/>Перейти к тестам</button>{data.permissions.canManageCreators&&<button type="button" className="button outline" onClick={onAccess}><Users size={18}/>Управление авторами</button>}</div>
   </section>;
 }

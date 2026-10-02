@@ -8,11 +8,12 @@ import { workspaceApi as api } from '@/lib/workspace-api';
 import type { Assignment, Workspace } from '@/lib/types';
 import { formatSiteDate as when, toSiteDateTimeInput as localInput, fromSiteDateTimeInput, SITE_TIME_LABEL } from '@/lib/date-time';
 import AssignmentReset from './assignment-reset';
+import { dashboardApi } from '@/lib/dashboard-api';
 
 const labels={assigned:'Назначен',overdue:'Просрочен',passed:'Пройден',cancelled:'Отменён',reset:'Обнулён'};
 
 export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,initialTestId,focusAssignment}:{
-  data:Workspace;busy:boolean;onStart:(assignment:Assignment)=>void;onOpen:(id:string)=>void;onRefresh:()=>Promise<void>;initialTestId?:string;focusAssignment?:{id:string;request:number}|null;
+  data:Workspace;busy:boolean;onStart:(assignment:Assignment)=>void;onOpen:(id:string)=>void;onRefresh:()=>Promise<void>;initialTestId?:string;focusAssignment?:{id:string;request:number;scope?:'mine'|'team'}|null;
 }){
   const canAssign=data.permissions.canAssignTests===true;
   const published=(data.assignmentTests||[]).filter(test=>test.published&&!test.demo);
@@ -26,15 +27,24 @@ export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,ini
   const [newDue,setNewDue]=useState('');
   const [cancel,setCancel]=useState<Assignment|null>(null);
   const [reset,setReset]=useState<Assignment|null>(null);
+  const [target,setTarget]=useState<Assignment|null>(null),[targetLoading,setTargetLoading]=useState(false),[targetError,setTargetError]=useState(''),[targetRevision,setTargetRevision]=useState(0);
   const [clock,setClock]=useState(Date.now());
   useEffect(()=>{const id=setInterval(()=>setClock(Date.now()),30_000);return()=>clearInterval(id);},[]);
   useEffect(()=>{if(initialTestId){setTestId(initialTestId);setScope('team');}},[initialTestId]);
-  useEffect(()=>{if(focusAssignment)setScope('mine');},[focusAssignment]);
+  useEffect(()=>{if(focusAssignment)setScope(focusAssignment.scope==='team'&&canAssign?'team':'mine');},[focusAssignment,canAssign]);
   useEffect(()=>{
-    if(!focusAssignment||scope!=='mine')return;
+    let active=true;setTarget(null);setTargetError('');setTargetLoading(false);
+    if(!canAssign||focusAssignment?.scope!=='team'||!focusAssignment.id)return;
+    setTargetLoading(true);
+    dashboardApi<Assignment>({action:'assignment',id:focusAssignment.id}).then(item=>{if(active)setTarget(item);})
+      .catch(cause=>{if(active)setTargetError(cause.message);}).finally(()=>{if(active)setTargetLoading(false);});
+    return()=>{active=false;};
+  },[focusAssignment,canAssign,data.assignedTeam,targetRevision]);
+  useEffect(()=>{
+    if(!focusAssignment?.id||scope!==(focusAssignment.scope||'mine'))return;
     const frame=requestAnimationFrame(()=>document.getElementById('assignment-'+focusAssignment.id)?.scrollIntoView({block:'center'}));
     return()=>cancelAnimationFrame(frame);
-  },[focusAssignment,scope,data.assignments]);
+  },[focusAssignment,scope,data.assignments,data.assignedTeam,target]);
   useEffect(()=>{if(!canAssign){setScope('mine');setReset(null);setReschedule(null);setCancel(null);}},[canAssign]);
   const status=(item:Assignment)=>item.status==='assigned'&&Date.parse(item.dueAt)<clock?'overdue':item.status;
   const locked=saving||busy;
@@ -85,7 +95,9 @@ export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,ini
           {!published.length&&<p className="helper">Опубликованных тестов пока нет. Создавать и редактировать их могут сотрудники от звания «Полковник».</p>}
           <button className="button primary" type="submit" disabled={locked||!published.length||!testId}>{saving?<Loader2 size={17} className="spin"/>:<Send size={17}/>}Назначить тест</button>
         </form>
-        <h2 className="assignment-list-title">Назначения всех сотрудников</h2><p className="table-caption">Управление доступно от звания «Капитан». Обнуление создаёт новое задание и сохраняет всю историю попыток.</p>{cards(data.assignedTeam||[],false)}
+        <h2 className="assignment-list-title">Назначения всех сотрудников</h2><p className="table-caption">Управление доступно от звания «Капитан». Обнуление создаёт новое задание и сохраняет всю историю попыток.</p>
+        {targetLoading&&<p role="status">Загружаем выбранное назначение…</p>}{targetError&&<div className="error-banner" role="alert"><span>{targetError}</span><button type="button" className="button outline" onClick={()=>setTargetRevision(n=>n+1)}>Повторить</button></div>}
+        {cards(target?[target,...(data.assignedTeam||[]).filter(item=>item.id!==target.id)]:data.assignedTeam||[],false)}
       </TabsContent>}
     </Tabs>
     {reset&&canAssign&&<AssignmentReset assignment={reset} onClose={()=>setReset(null)} onReload={()=>{setReset(null);void onRefresh();}} onSuccess={()=>{setReset(null);void onRefresh();toast.success('Назначение обнулено. Все попытки и результаты сохранены.');}}/>}

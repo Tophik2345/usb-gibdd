@@ -3,6 +3,7 @@ import { Check, BookOpen, ShieldCheck, Send, Settings2, Search, ExternalLink } f
 import { toast } from 'sonner';
 import { trainingApi, useTraining, type Clearance, type ClearanceStatus } from '@/lib/training-api';
 import { formatSiteDate } from '@/lib/date-time';
+import { dashboardApi } from '@/lib/dashboard-api';
 import { TrainingLoad } from './training-center';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 const labels:Record<ClearanceStatus,string>={preparing:'Идёт подготовка',pending:'На рассмотрении',approved:'Допуск подтверждён',rejected:'Нужна доработка',revoked:'Допуск отозван',outdated:'Программа изменилась'};
@@ -29,12 +30,23 @@ export default function Admission({management}:{management:boolean}){
     </>}
   </>;
 }
+const personFromHash=()=>new URLSearchParams(window.location.hash.split('?')[1]||'').get('person')||'';
 function Team(){
   const [input,setInput]=useState(''),[search,setSearch]=useState(''),[page,setPage]=useState(0);
   const query=useTraining<{people:Person[];total:number}>({op:'clearanceTeam',search,page});
   const [person,setPerson]=useState<Person|null>(null),[status,setStatus]=useState('approved'),[note,setNote]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+  const [targetId,setTargetId]=useState(personFromHash),[targetRevision,setTargetRevision]=useState(0),[targetLoading,setTargetLoading]=useState(false),[targetError,setTargetError]=useState('');
+  useEffect(()=>{const update=()=>setTargetId(personFromHash());window.addEventListener('hashchange',update);return()=>window.removeEventListener('hashchange',update);},[]);
+  useEffect(()=>{
+    let active=true;setTargetError('');setTargetLoading(false);
+    if(!targetId)return;
+    setPerson(null);setTargetLoading(true);
+    dashboardApi<Person>({action:'clearance',userId:targetId}).then(next=>{if(active){setPerson(next);setStatus(next.state.status==='pending'?'approved':'revoked');setNote('');setError('');}})
+      .catch(cause=>{if(active)setTargetError(cause.message);}).finally(()=>{if(active)setTargetLoading(false);});
+    return()=>{active=false;};
+  },[targetId,targetRevision]);
   const decide=async(e:React.FormEvent)=>{e.preventDefault();if(!person)return;setBusy(true);setError('');try{await trainingApi({action:'decideClearance',userId:person.userId,status,note});setPerson(null);query.refresh();toast.success('Решение сохранено');}catch(e:any){setError(e.message);}finally{setBusy(false);}};
-  return <><form className="training-search" onSubmit={e=>{e.preventDefault();setSearch(input);setPage(0);}}><label className="field"><span className="sr-only">Поиск сотрудника по логину</span><input value={input} maxLength={100} onChange={e=>setInput(e.target.value)} placeholder="Логин сотрудника"/></label><button className="button outline"><Search size={17}/>Найти</button></form>
+  return <>{targetLoading&&<p role="status">Загружаем заявку сотрудника…</p>}{targetError&&<div className="error-banner" role="alert"><span>{targetError}</span><button type="button" className="button outline" onClick={()=>setTargetRevision(n=>n+1)}>Повторить</button></div>}<form className="training-search" onSubmit={e=>{e.preventDefault();setSearch(input);setPage(0);}}><label className="field"><span className="sr-only">Поиск сотрудника по логину</span><input value={input} maxLength={100} onChange={e=>setInput(e.target.value)} placeholder="Логин сотрудника"/></label><button className="button outline"><Search size={17}/>Найти</button></form>
     {query.loading||!query.data?<TrainingLoad error={query.error} refresh={query.refresh}/>:<><div className="training-team-list">{query.data.people.map(p=><article className="training-panel trainee-row" key={p.userId}><div><h3>{p.login}</h3><span className={'clearance-status state-'+p.state.status}>{labels[p.state.status]}</span><p>Материалы: {p.state.materials.filter(m=>m.readAt).length}/{p.state.materials.length} · Тесты: {p.state.tests.filter(t=>t.passed).length}/{p.state.tests.length}</p></div><button className="button outline" onClick={()=>{setPerson(p);setStatus(p.state.status==='pending'?'approved':'revoked');setNote('');setError('');}}>Открыть подготовку</button></article>)}{!query.data.people.length&&<p className="training-panel">Сотрудники не найдены.</p>}</div><div className="training-pagination"><button className="button outline" disabled={!page} onClick={()=>setPage(p=>p-1)}>Назад</button><span>{page+1} / {Math.max(1,Math.ceil(query.data.total/30))}</span><button className="button outline" disabled={(page+1)*30>=query.data.total} onClick={()=>setPage(p=>p+1)}>Далее</button></div></>}
     <Dialog open={!!person} onOpenChange={v=>{if(!v&&!busy)setPerson(null);}}><DialogContent className="portal-editor"><DialogHeader><DialogTitle>{person?.login}</DialogTitle><DialogDescription>Подготовка к самостоятельной службе</DialogDescription></DialogHeader>{person&&<form className="portal-form" onSubmit={decide}><strong>{labels[person.state.status]}</strong><ul className="training-checklist">{person.state.materials.map(m=><li key={m.id}>{m.readAt?'✓':'○'} {m.title}</li>)}{person.state.tests.map(t=><li key={t.id}>{t.passed?'✓':'○'} {t.title}</li>)}</ul>{person.state.note&&<p>{person.state.note}</p>}{['pending','approved','outdated'].includes(person.state.status)&&<><label className="field">Решение<select value={status} onChange={e=>setStatus(e.target.value)}>{person.state.status==='pending'?<><option value="approved">Подтвердить допуск</option><option value="rejected">Вернуть на доработку</option></>:<option value="revoked">Отозвать допуск</option>}</select></label><label className="field">Комментарий<textarea value={note} maxLength={600} required={status!=='approved'} minLength={status!=='approved'?3:0} onChange={e=>setNote(e.target.value)}/></label><button className="button primary" disabled={busy}>Сохранить решение</button></>}{error&&<p className="inline-error" role="alert">{error}</p>}</form>}</DialogContent></Dialog>
   </>;
