@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import Workspace from './app/workspace';
+import { startPwa } from './lib/pwa';
 import './app/globals.css';
 import './app/reference-theme.css';
 import './app/portal-theme.css';
@@ -7,3 +8,4 @@ import './app/red-accents.css';
 import './app/training-theme.css';
 import './app/auth-welcome.css';
 createRoot(document.getElementById('root')!).render(<Workspace />);
+startPwa();

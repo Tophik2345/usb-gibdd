@@ -9,15 +9,16 @@
   "packageManager": "pnpm@11.25.0",
   "scripts": {
     "dev": "node scripts/prepare-assets.mjs && vite",
-    "build": "node scripts/prepare-assets.mjs && tsc --noEmit && vite build",
+    "build": "node scripts/prepare-assets.mjs && tsc --noEmit && vite build && node scripts/build-pwa.mjs",
     "preview": "vite preview",
     "test:time": "node scripts/test-date-time.mjs",
     "test:session": "node scripts/test-account-session.mjs",
     "test:confirmation": "node scripts/test-email-confirmation.mjs",
-    "test:db": "node scripts/test-database.mjs && node scripts/test-login-function.mjs && node scripts/test-date-time.mjs",
+    "test:db": "node scripts/test-database.mjs && node scripts/test-login-function.mjs && node scripts/test-date-time.mjs && node scripts/test-pwa.mjs",
     "test:recovery": "node scripts/test-password-recovery.mjs",
     "test:results": "node scripts/test-results.mjs",
-    "test:drafts": "node scripts/test-editor-drafts.mjs"
+    "test:drafts": "node scripts/test-editor-drafts.mjs",
+    "test:pwa": "node scripts/test-pwa.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",

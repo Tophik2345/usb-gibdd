@@ -9,6 +9,7 @@ import type { Assignment, Workspace } from '@/lib/types';
 import { formatSiteDate as when, toSiteDateTimeInput as localInput, fromSiteDateTimeInput, SITE_TIME_LABEL } from '@/lib/date-time';
 import AssignmentReset from './assignment-reset';
 import { dashboardApi } from '@/lib/dashboard-api';
+import BulkAssignments from './bulk-assignments';
 
 const labels={assigned:'Назначен',overdue:'Просрочен',passed:'Пройден',cancelled:'Отменён',reset:'Обнулён'};
 
@@ -18,6 +19,7 @@ export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,ini
   const canAssign=data.permissions.canAssignTests===true;
   const published=(data.assignmentTests||[]).filter(test=>test.published&&!test.demo);
   const [scope,setScope]=useState(initialTestId&&canAssign?'team':'mine');
+  const [bulkOpen,setBulkOpen]=useState(false);
   const [testId,setTestId]=useState(initialTestId||published[0]?.id||'');
   const [login,setLogin]=useState('');
   const [due,setDue]=useState(localInput(new Date(Date.now()+24*60*60_000)));
@@ -95,6 +97,8 @@ export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,ini
           {!published.length&&<p className="helper">Опубликованных тестов пока нет. Создавать и редактировать их могут сотрудники от звания «Полковник».</p>}
           <button className="button primary" type="submit" disabled={locked||!published.length||!testId}>{saving?<Loader2 size={17} className="spin"/>:<Send size={17}/>}Назначить тест</button>
         </form>
+        <button type="button" className="button outline bulk-open-button" aria-expanded={bulkOpen} onClick={()=>setBulkOpen(value=>!value)}>Назначить нескольким сотрудникам</button>
+        {bulkOpen&&<BulkAssignments tests={published} onRefresh={onRefresh}/>}
         <h2 className="assignment-list-title">Назначения всех сотрудников</h2><p className="table-caption">Управление доступно от звания «Капитан». Обнуление создаёт новое задание и сохраняет всю историю попыток.</p>
         {targetLoading&&<p role="status">Загружаем выбранное назначение…</p>}{targetError&&<div className="error-banner" role="alert"><span>{targetError}</span><button type="button" className="button outline" onClick={()=>setTargetRevision(n=>n+1)}>Повторить</button></div>}
         {cards(target?[target,...(data.assignedTeam||[]).filter(item=>item.id!==target.id)]:data.assignedTeam||[],false)}

@@ -12,11 +12,11 @@ export const siteSections = [
   { id: 'department', title: 'Подразделение' },
   { id: 'links', title: 'Полезные ссылки' },
 ] as const;
-export type SitePage = typeof siteSections[number]['id'] | 'account' | 'profile' | 'search' | 'calendar' | 'history';
+export type SitePage = typeof siteSections[number]['id'] | 'account' | 'profile' | 'search' | 'calendar' | 'history' | 'attestation' | 'install';
 
 export function pageFromHash(): SitePage {
   const hash = window.location.hash.slice(1).split('?')[0];
-  return ['profile','search','calendar','history'].includes(hash)||siteSections.some(section => section.id === hash) ? hash as SitePage : 'account';
+  return ['profile','search','calendar','history','attestation','install'].includes(hash)||siteSections.some(section => section.id === hash) ? hash as SitePage : 'account';
 }
 
 export function Logo() {
