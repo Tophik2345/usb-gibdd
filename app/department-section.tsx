@@ -15,7 +15,8 @@ export type DepartmentTab = typeof departmentTabs[number]['id'];
 function route() {
   const query = new URLSearchParams(window.location.hash.split('?')[1] || '');
   const tab = query.get('tab');
-  return { tab: (departmentTabs.some(item => item.id === tab) ? tab : 'staff') as DepartmentTab, member: query.get('member'), appeal: query.get('appeal') };
+  const scope = query.get('scope');
+  return { tab: (departmentTabs.some(item => item.id === tab) ? tab : 'staff') as DepartmentTab, member: query.get('member'), appeal: query.get('appeal'), scope: scope === 'mine' || scope === 'team' ? scope : undefined };
 }
 export function departmentLink(tab: DepartmentTab, field?: 'member' | 'appeal', id?: string) {
   const query = new URLSearchParams({ tab });
@@ -38,6 +39,6 @@ export default function DepartmentSection({ signedIn, canManage, displayName }: 
     {!signedIn && current.tab !== 'reports' ? <div className="department-empty"><LogIn size={30} /><h2>{current.tab === 'staff' ? 'Состав доступен сотрудникам' : 'Войдите, чтобы подать обращение'}</h2><p>{current.tab === 'staff' ? 'Войдите в аккаунт с подтверждённой почтой, чтобы открыть служебные профили.' : 'После входа вы сможете отправить обращение, следить за статусом и прочитать ответ руководства.'}</p><a className="button primary" href="#account">Войти в аккаунт</a></div>
       : current.tab === 'staff' ? <StaffSection canManage={canManage} memberId={current.member} />
       : current.tab === 'reports' ? <ReportTemplates displayName={displayName} />
-      : <AppealsSection canManage={canManage} appealId={current.appeal} />}
+      : <AppealsSection canManage={canManage} appealId={current.appeal} initialScope={current.scope} />}
   </section>;
 }

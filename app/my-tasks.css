@@ -1,0 +1,33 @@
+.my-tasks { margin: 28px 0; }
+.my-tasks-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.my-tasks-heading h2 { font-size: 24px; }
+.my-tasks-heading p { margin-top: 5px; color: var(--text-muted); font-size: 14px; }
+.my-tasks-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.my-tasks-panel { display: flex; flex-direction: column; min-width: 0; padding: 22px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.my-tasks-panel h3 { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; margin-bottom: 18px; font-size: 17px; }
+.my-tasks-panel h3 > svg { color: var(--primary); }
+.my-tasks-panel h3 .count-pill { margin-left: auto; }
+.my-tasks-list { list-style: none; padding: 0; margin: 0; }
+.my-tasks-list li { min-width: 0; padding: 15px 0; border-top: 1px solid var(--border); }
+.my-tasks-list li:first-child { padding-top: 0; border-top: 0; }
+.my-tasks-list li > .button { margin-top: 12px; }
+.my-tasks-item-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 7px; }
+.my-tasks-item-heading h4 { min-width: 0; margin: 0; font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
+.my-tasks-item-heading .badge { flex-shrink: 0; }
+.my-tasks-note { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; font-size: 13px; line-height: 1.6; color: var(--text-muted); }
+.my-tasks-note time { display: inline; }
+.my-tasks-empty { color: var(--text-muted); font-size: 14px; padding-bottom: 16px; }
+.my-tasks-more { align-self: flex-start; margin-top: auto; padding-top: 14px; font-size: 14px; }
+.my-tasks-clearance > strong { display: block; margin-bottom: 8px; }
+.my-tasks-decision { margin-top: 12px; padding: 12px; border-left: 3px solid var(--primary); background: #ffffff05; color: var(--text-muted); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.my-tasks-error { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; color: #f3a6af; font-size: 14px; }
+.my-tasks-error p { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .my-tasks-grid { grid-template-columns: minmax(0, 1fr); }
+  .my-tasks-heading { align-items: flex-start; flex-direction: column; }
+  .my-tasks-panel { padding: 18px; }
+}
+@media (max-width: 420px) {
+  .my-tasks-item-heading { flex-direction: column; gap: 7px; }
+  .my-tasks-list li > .button { max-width: 100%; }
+}

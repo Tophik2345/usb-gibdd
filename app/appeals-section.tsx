@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, ExternalLink, Loader2, MessageSquare, Plus, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -10,10 +10,11 @@ import { departmentLink, DepartmentLoading } from './department-section';
 const shortId = (id: string) => id.slice(0, 8).toUpperCase();
 function Status({ status }: { status: AppealStatus }) { return <span className={'appeal-status status-' + status}>{appealStatuses[status]}</span>; }
 type AppealDraft = { id: string; kind: keyof typeof appealKinds; subject: string; body: string; evidence: string };
-export default function AppealsSection({ canManage, appealId }: { canManage: boolean; appealId: string | null }) {
-  const [scope, setScope] = useState(canManage ? 'team' : 'mine');
+export default function AppealsSection({ canManage, appealId, initialScope }: { canManage: boolean; appealId: string | null; initialScope?: string }) {
+  const [scope, setScope] = useState(initialScope || (canManage ? 'team' : 'mine'));
   const [status, setStatus] = useState('all');
   const [offset, setOffset] = useState(0);
+  useEffect(() => { setScope(initialScope || (canManage ? 'team' : 'mine')); setOffset(0); }, [initialScope, canManage]);
   const [draft, setDraft] = useState<AppealDraft | null>(null);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
@@ -30,9 +31,9 @@ export default function AppealsSection({ canManage, appealId }: { canManage: boo
   };
   return <div className="department-content"><div className="portal-heading"><div><h2><MessageSquare size={24} />Обращения в УСБ</h2><p className="portal-note">Обращение и материалы видны только заявителю, владельцу и заместителю.</p></div><button className="button primary" onClick={() => { setFormError(''); setDraft({ id: crypto.randomUUID(), kind: 'complaint', subject: '', body: '', evidence: '' }); }}><Plus size={17} />Подать обращение</button></div>
     <p className="portal-note">Здесь принимаются внутренние обращения руководству подразделения. Подача на сайте не заменяет установленный порядок обращения в прокуратуру, суд или к администрации проекта.</p>
-    {appealId ? <AppealDetails key={appealId} id={appealId} canManage={canManage} onUpdated={refresh} /> : <>
+    {appealId ? <AppealDetails key={appealId} id={appealId} canManage={canManage} onUpdated={refresh} scope={canManage ? scope : 'mine'} /> : <>
       <div className="department-toolbar appeal-filters">{canManage && <label className="field">Очередь<select value={scope} onChange={e => { setScope(e.target.value); setOffset(0); }}><option value="team">Все обращения</option><option value="mine">Мои обращения</option></select></label>}<label className="field">Статус<select value={status} onChange={e => { setStatus(e.target.value); setOffset(0); }}><option value="all">Все статусы</option>{Object.entries(appealStatuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><button className="button outline" onClick={refresh} disabled={loading}><RefreshCw size={16} />Обновить</button></div>
-      {loading || error ? <DepartmentLoading error={error} refresh={refresh} /> : !data?.appeals.length ? <div className="department-empty"><MessageSquare size={30} /><h3>Обращений пока нет</h3><p>{status === 'all' ? 'Здесь появятся обращения и ответы руководства.' : 'По выбранному статусу ничего не найдено.'}</p></div> : <div className="appeal-list">{data.appeals.map(item => <a className="appeal-row department-card" href={departmentLink('appeals', 'appeal', item.id)} key={item.id}><div><div className="appeal-meta"><span>№ {shortId(item.id)} · {appealKinds[item.kind]}</span><Status status={item.status} /></div><h3>{item.subject}</h3><p className="portal-note">{item.authorLogin} · {formatSiteDate(item.createdAt)}</p></div><ArrowRight size={20} /></a>)}</div>}
+      {loading || error ? <DepartmentLoading error={error} refresh={refresh} /> : !data?.appeals.length ? <div className="department-empty"><MessageSquare size={30} /><h3>Обращений пока нет</h3><p>{status === 'all' ? 'Здесь появятся обращения и ответы руководства.' : 'По выбранному статусу ничего не найдено.'}</p></div> : <div className="appeal-list">{data.appeals.map(item => <a className="appeal-row department-card" href={departmentLink('appeals', 'appeal', item.id) + '&scope=' + (canManage ? scope : 'mine')} key={item.id}><div><div className="appeal-meta"><span>№ {shortId(item.id)} · {appealKinds[item.kind]}</span><Status status={item.status} /></div><h3>{item.subject}</h3><p className="portal-note">{item.authorLogin} · {formatSiteDate(item.createdAt)}</p></div><ArrowRight size={20} /></a>)}</div>}
       {data && data.total > 20 && <div className="appeal-pagination"><button className="button outline" disabled={offset === 0 || loading} onClick={() => setOffset(value => Math.max(0, value - 20))}><ArrowLeft size={16} />Назад</button><span>{offset + 1}–{Math.min(offset + 20, data.total)} из {data.total}</span><button className="button outline" disabled={offset + 20 >= data.total || loading} onClick={() => setOffset(value => value + 20)}>Далее<ArrowRight size={16} /></button></div>}
     </>}
     <Dialog open={!!draft} onOpenChange={open => { if (!open && !saving) setDraft(null); }}><DialogContent className="portal-dialog"><DialogHeader><DialogTitle>Новое обращение</DialogTitle><DialogDescription>Обращение будет подписано вашим логином. Для жалобы приложите ссылки на доказательства.</DialogDescription></DialogHeader>{draft && <form className="portal-form" onSubmit={create}>
@@ -45,9 +46,9 @@ export default function AppealsSection({ canManage, appealId }: { canManage: boo
   </div>;
 }
 
-function AppealDetails({ id, canManage, onUpdated }: { id: string; canManage: boolean; onUpdated: () => void }) {
+function AppealDetails({ id, canManage, onUpdated, scope }: { id: string; canManage: boolean; onUpdated: () => void; scope: string }) {
   const { data, loading, error, refresh } = useDepartmentData<Appeal>({ op: 'appeal', id });
-  return <><div className="department-detail-tools"><a className="department-back" href={departmentLink('appeals')}><ArrowLeft size={17} />К обращениям</a><button className="button outline" onClick={refresh} disabled={loading}><RefreshCw size={16} />Обновить</button></div>
+  return <><div className="department-detail-tools"><a className="department-back" href={departmentLink('appeals') + '&scope=' + scope}><ArrowLeft size={17} />К обращениям</a><button className="button outline" onClick={refresh} disabled={loading}><RefreshCw size={16} />Обновить</button></div>
     {loading || error ? <DepartmentLoading error={error} refresh={refresh} /> : data && <div className="appeal-detail-grid"><article className="department-card appeal-detail"><div className="appeal-meta"><span>№ {shortId(data.id)} · {appealKinds[data.kind]}</span><Status status={data.status} /></div><h3>{data.subject}</h3><p className="portal-note">Заявитель: {data.authorLogin}<br />Подано: {formatSiteDate(data.createdAt)}</p><h4>Описание ситуации</h4><p className="department-preserve">{data.body}</p><h4>Материалы и доказательства</h4>{data.evidence.length ? <ol className="appeal-evidence">{data.evidence.map((url, index) => <li key={index}><a href={url} target="_blank" rel="noopener noreferrer">Материал {index + 1} · {new URL(url).hostname}<ExternalLink size={14} /></a></li>)}</ol> : <p className="portal-note">Ссылки не приложены.</p>}
       {data.response && <div className="appeal-response"><h4>Ответ руководства</h4><p className="department-preserve">{data.response}</p></div>}
       {canManage && <AppealReview key={data.id + ':' + data.version} appeal={data} onSaved={() => { refresh(); onUpdated(); }} />}
