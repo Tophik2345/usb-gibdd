@@ -11,6 +11,7 @@ import { checkAccounts } from './test-accounts.mjs';
 import { checkTrainingCenter } from './test-training-center.mjs';
 import { checkStaffRanks } from './test-staff-ranks.mjs';
 import { checkRankTestPermissions } from './test-rank-test-permissions.mjs';
+import { checkNotifications } from './test-notifications.mjs';
 
 const root=resolve(import.meta.dirname,'..');
 const db=new PGlite();
@@ -186,5 +187,6 @@ try {
   await db.exec('reset role');
   for(const file of migrations.filter(f=>f>=rankTestsMigration)) await db.exec(fs.readFileSync(resolve(root,'supabase/migrations',file),'utf8'));
   await checkRankTestPermissions({db,asUser,rpc,denied,base,checks});
+  await checkNotifications({db,asUser,denied,checks});
   console.log(JSON.stringify({passed:checks.length,checks,scope:'Actual PostgreSQL engine (PGlite), migrations, database roles and RPC; Auth JWT claims mocked locally'},null,2));
 } finally {await db.close();}

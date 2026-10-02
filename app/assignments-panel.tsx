@@ -11,8 +11,8 @@ import AssignmentReset from './assignment-reset';
 
 const labels={assigned:'Назначен',overdue:'Просрочен',passed:'Пройден',cancelled:'Отменён',reset:'Обнулён'};
 
-export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,initialTestId}:{
-  data:Workspace;busy:boolean;onStart:(assignment:Assignment)=>void;onOpen:(id:string)=>void;onRefresh:()=>Promise<void>;initialTestId?:string;
+export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,initialTestId,focusAssignment}:{
+  data:Workspace;busy:boolean;onStart:(assignment:Assignment)=>void;onOpen:(id:string)=>void;onRefresh:()=>Promise<void>;initialTestId?:string;focusAssignment?:{id:string;request:number}|null;
 }){
   const canAssign=data.permissions.canAssignTests===true;
   const published=(data.assignmentTests||[]).filter(test=>test.published&&!test.demo);
@@ -29,6 +29,12 @@ export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,ini
   const [clock,setClock]=useState(Date.now());
   useEffect(()=>{const id=setInterval(()=>setClock(Date.now()),30_000);return()=>clearInterval(id);},[]);
   useEffect(()=>{if(initialTestId){setTestId(initialTestId);setScope('team');}},[initialTestId]);
+  useEffect(()=>{if(focusAssignment)setScope('mine');},[focusAssignment]);
+  useEffect(()=>{
+    if(!focusAssignment||scope!=='mine')return;
+    const frame=requestAnimationFrame(()=>document.getElementById('assignment-'+focusAssignment.id)?.scrollIntoView({block:'center'}));
+    return()=>cancelAnimationFrame(frame);
+  },[focusAssignment,scope,data.assignments]);
   useEffect(()=>{if(!canAssign){setScope('mine');setReset(null);setReschedule(null);setCancel(null);}},[canAssign]);
   const status=(item:Assignment)=>item.status==='assigned'&&Date.parse(item.dueAt)<clock?'overdue':item.status;
   const locked=saving||busy;
@@ -48,7 +54,7 @@ export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,ini
   };
   const cards=(rows:Assignment[],own:boolean)=>rows.length?<div className="assignment-list">{rows.map(item=>{
     const current=status(item);const pending=current==='assigned'||current==='overdue';
-    return <article className="assignment-card" key={item.id}>
+    return <article className={'assignment-card'+(focusAssignment?.id===item.id?' is-focused':'')} id={'assignment-'+item.id} key={item.id}>
       <div className="assignment-card-heading"><span className={'badge '+(current==='passed'?'green-badge':current==='overdue'?'orange-badge':current==='cancelled'?'neutral':'blue-badge')}>{labels[current]}</span><span className="subtle">{own?`Автор: ${item.authorLogin}`:`Сотрудник: ${item.employeeLogin}`}</span></div>
       <h2>{item.testTitle}</h2>
       <p className="assignment-deadline"><CalendarClock size={17}/>Срок: <strong>{when(item.dueAt)}</strong></p>

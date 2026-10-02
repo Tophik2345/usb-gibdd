@@ -1,0 +1,104 @@
+import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
+
+export async function checkNotifications({ db, asUser, denied, checks }) {
+  const A = randomUUID(), B = randomUUID(), unconfirmed = randomUUID();
+  const test = randomUUID(), secondTest = randomUUID();
+  const own = randomUUID(), other = randomUUID(), late = randomUUID(), appeal = randomUUID();
+  const call = async payload => (await db.query('select public.knowledge_notifications($1::jsonb) data', [JSON.stringify(payload)])).rows[0].data;
+  const admin = async () => { await db.exec('reset role'); await db.query("select set_config('request.jwt.claims','{}',false)"); };
+  const questions = [{ id: 'secret-question', text: 'СЕКРЕТНЫЙ ВОПРОС', options: ['Да', 'Нет'], correct: 0 }];
+  const addTest = async id => db.query('insert into knowledge_private.tests(id,owner_id,title,category,pass_mark,questions,published) values($1,$2,$3,$4,80,$5,true)', [id, A, 'Тест уведомлений', 'Проверка', JSON.stringify(questions)]);
+  const addAssignment = async (id, testId, user, due) => db.query('insert into knowledge_private.assignments(id,test_id,author_id,user_id,employee_login,test_title,pass_mark,questions,due_at) values($1,$2,$3,$4,$5,$6,80,$7,$8)', [id, testId, A, user, 'Сотрудник', 'Личное задание ' + user, JSON.stringify(questions), due]);
+  await admin();
+  for (const id of [A, B, unconfirmed]) await db.query('insert into auth.users(id,email,raw_user_meta_data) values($1,$2,$3)', [id, id + '@example.test', JSON.stringify({ login: 'Уведомления ' + id })]);
+  await db.query('update auth.users set email_confirmed_at=null where id=$1', [unconfirmed]);
+  await addTest(test); await addTest(secondTest);
+  await addAssignment(own, test, A, new Date(Date.now() + 2 * 3600_000).toISOString());
+  await addAssignment(other, test, B, new Date(Date.now() + 3 * 3600_000).toISOString());
+  await addAssignment(late, secondTest, A, new Date(Date.now() - 3600_000).toISOString());
+  await db.query("insert into knowledge_private.department_appeals(id,author_id,author_login,kind,subject,body,status,response) values($1,$2,'Сотрудник','question','Личный ответ','Описание локального обращения для проверки уведомлений','resolved','Ответ руководства')", [appeal, A]);
+  await db.query("insert into knowledge_private.service_clearances(user_id,status,program_version,test_versions,decided_at,note) values($1,'rejected',1,'[]',now(),'Изучите материал')", [A]);
+  await asUser(null, 'anon'); await denied(() => call({}), '42501');
+  await asUser(null); await denied(() => call({}), 'PT401');
+  await asUser(unconfirmed); await denied(() => call({}), 'PT401');
+  await asUser(A);
+  await denied(() => db.query('select * from knowledge_private.notification_reads'), '42501');
+  await denied(() => db.query('insert into knowledge_private.notification_reads(user_id,event_key) values($1,$2)', [A, 'forged']), '42501');
+  await denied(() => db.query('select * from knowledge_private.notification_feed($1,now())', [B]), '42501');
+  let page = await call({ userId: B, role: 'owner', scope: 'team' });
+  assert.equal(page.total, 6); assert.equal(page.unreadCount, 6);
+  assert(!page.items.some(item => item.targetId === other));
+  assert(page.items.some(item => item.kind === 'appeal' && item.targetId === appeal));
+  assert(page.items.some(item => item.kind === 'clearance'));
+  assert(!JSON.stringify(page).includes('СЕКРЕТНЫЙ ВОПРОС'));
+  checks.push('Notifications require a live confirmed identity, never reveal another user or questions, and private read marks/helpers have no direct grants');
+
+  const id = page.items.find(item => item.kind === 'assignment' && item.targetId === own).id;
+  const after = await call({ action: 'markRead', ids: [id, id], userId: B });
+  assert.equal(after.unreadCount, 5);
+  assert((await call({})).items.find(item => item.id === id).read);
+  await call({ action: 'markRead', ids: [id] }); assert.equal((await call({})).unreadCount, 5);
+  await asUser(B); const others = await call({});
+  assert.equal(others.unreadCount, 2);
+  await call({ action: 'markRead', ids: [id], userId: A });
+  assert.equal((await call({})).unreadCount, 2);
+  await admin();
+  assert.deepEqual((await db.query('select user_id from knowledge_private.notification_reads')).rows.map(row => row.user_id), [A]);
+  await db.query("update auth.users set banned_until=now()+interval '1 day' where id=$1", [B]);
+  await asUser(B); await denied(() => call({}), 'PT403'); await denied(() => call({ action: 'markAll' }), 'PT403');
+  checks.push('Read state persists idempotently per account; supplied identities cannot redirect writes and blocked accounts cannot read or mark');
+
+  await admin();
+  await db.query("update knowledge_private.assignments set due_at=now()+interval '4 hours' where id=$1", [own]);
+  await db.query("update knowledge_private.department_appeals set response='Новый ответ',version=version+1,updated_at=now() where id=$1", [appeal]);
+  await asUser(A); page = await call({});
+  const changed = page.items.find(item => item.kind === 'assignment' && item.targetId === own);
+  assert.notEqual(changed.id, id); assert.equal(changed.read, false);
+  assert.equal(changed.title, 'Назначение обновлено');
+  assert(page.items.some(item => item.id === 'appeal:' + appeal + ':2'));
+  await admin();
+  const deadline = (await db.query('select due_at from knowledge_private.assignments where id=$1', [own])).rows[0].due_at;
+  let feed = (await db.query('select * from knowledge_private.notification_feed($1,$2)', [A, deadline])).rows;
+  assert(feed.some(row => row.kind === 'overdue' && row.target_id === own));
+  assert(!feed.some(row => row.kind === 'deadline' && row.target_id === own));
+  await db.exec("set timezone='UTC'");
+  await asUser(A); const utcPage = await call({}); await call({ action: 'markAll' });
+  await admin(); await db.exec("set timezone='Europe/Moscow'");
+  await asUser(A); const moscowPage = await call({});
+  assert.deepEqual(moscowPage.items.map(item => item.id), utcPage.items.map(item => item.id));
+  assert.equal(moscowPage.unreadCount, 0);
+  await admin(); await db.exec("set timezone='UTC'");
+  checks.push('Read keys remain stable across UTC and Moscow database sessions, including deadline and clearance events');
+
+  await db.query('update knowledge_private.assignments set completed_at=now() where id=$1', [own]);
+  await asUser(A); assert(!(await call({})).items.some(item => item.targetId === own));
+  await admin();
+  await db.query('update knowledge_private.assignments set completed_at=null,cancelled_at=now() where id=$1', [own]);
+  await db.query('update knowledge_private.assignments set reset_to_id=$2 where id=$1', [late, other]);
+  await asUser(A); assert(!(await call({})).items.some(item => [own, late].includes(item.targetId)));
+  checks.push('Rescheduled assignments and new replies become unread again; deadline/overdue boundary is exact and completed/cancelled/reset assignments disappear');
+
+  await admin();
+  for (let index = 0; index < 23; index++) {
+    const testId = randomUUID(); await addTest(testId);
+    await addAssignment(randomUUID(), testId, A, new Date(Date.now() + 7 * 86400_000).toISOString());
+  }
+  await asUser(A); page = await call({});
+  assert.equal(page.total, 25); assert.equal(page.items.length, 20); assert(page.nextCursor);
+  const next = await call({ cursor: page.nextCursor });
+  assert.equal(next.items.length, 5); assert.equal(next.nextCursor, null);
+  assert(!next.items.some(item => page.items.some(first => first.id === item.id)));
+  const marked = await call({ action: 'markAll', userId: B });
+  assert.equal(marked.unreadCount, 0);
+  assert.equal((await call({})).unreadCount, 0);
+  assert((await call({ cursor: page.nextCursor })).items.every(item => item.read));
+  await denied(() => call({ action: 'markRead', ids: [] }), 'PT400');
+  await denied(() => call({ action: 'markRead', ids: [3] }), 'PT400');
+  await denied(() => call({ cursor: { id: 'bad', at: 'infinity' } }), 'PT400');
+  await denied(() => call({ cursor: [] }), 'PT400');
+  await denied(() => call({ action: 'unknown' }), 'PT400');
+  await admin();
+  assert((await db.query("select relrowsecurity from pg_class where oid='knowledge_private.notification_reads'::regclass")).rows[0].relrowsecurity);
+  checks.push('Cursor pagination covers every notification without duplicates; mark-all includes unloaded pages and malformed writes/cursors are rejected');
+}

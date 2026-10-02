@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Menu, X, LogOut, LogIn } from 'lucide-react';
 import Emblem from './emblem';
 
@@ -23,8 +23,8 @@ export function Logo() {
   return <div className="brand"><span className="brand-mark"><Emblem/></span><span>УСБ ГибДД<span className="brand-caption">РОССИЯ ОНЛАЙН · КУТУЗОВСКИЙ</span></span></div>;
 }
 
-export default function SiteHeader({page,displayName,busy,onLogout,onNavigate}:{
-  page:SitePage;displayName?:string;busy?:boolean;onLogout?:()=>void;onNavigate:(page:SitePage)=>void;
+export default function SiteHeader({page,displayName,busy,onLogout,onNavigate,notifications}:{
+  page:SitePage;displayName?:string;busy?:boolean;onLogout?:()=>void;onNavigate:(page:SitePage)=>void;notifications?:ReactNode;
 }) {
   const [menuOpen,setMenuOpen]=useState(false);
   const navigate=(next:SitePage)=>{setMenuOpen(false);onNavigate(next);};
@@ -33,6 +33,7 @@ export default function SiteHeader({page,displayName,busy,onLogout,onNavigate}:{
       <a href="#home" className="site-brand-link" aria-label="УСБ ГибДД — Главная" onClick={e=>{e.preventDefault();navigate('home');}}><Logo/></a>
       <aside className="site-motto"><strong>Наш девиз</strong><span>«Мы следим за теми, кто следит за порядком».</span></aside>
       <div className="site-account">
+        {displayName!==undefined && notifications}
         {displayName!==undefined ? <><a href="#profile" className="profile-name profile-link" title="Открыть мой профиль" aria-label={(displayName||'Личный кабинет')+' — открыть профиль'} onClick={e=>{e.preventDefault();navigate('profile');}}>{displayName||'Личный кабинет'}</a><button type="button" className="icon-button" aria-label="Выйти из аккаунта" onClick={onLogout} disabled={busy}><LogOut size={20}/></button></> :
           <a href="#account" className="button outline" onClick={e=>{e.preventDefault();navigate('account');}}><LogIn size={17}/>Войти</a>}
         <button type="button" className="mobile-menu-button icon-button" aria-label={menuOpen?'Закрыть меню':'Открыть меню'} aria-expanded={menuOpen} aria-controls="site-navigation" onClick={()=>setMenuOpen(open=>!open)}>{menuOpen?<X size={23}/>:<Menu size={23}/>}</button>
