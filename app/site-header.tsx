@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Menu, X, LogOut, LogIn, Search } from 'lucide-react';
+import { Menu, X, LogOut, LogIn, Search, UserRound } from 'lucide-react';
 import Emblem from './emblem';
 
 export const siteSections = [
@@ -35,7 +35,7 @@ export default function SiteHeader({page,displayName,busy,onLogout,onNavigate,no
       <div className="site-account">
         <a href="#search" className="icon-button" title="Поиск по сайту" aria-label="Поиск по сайту" aria-current={page === 'search' ? 'page' : undefined} onClick={e => { e.preventDefault(); navigate('search'); }}><Search size={20}/></a>
         {displayName!==undefined && notifications}
-        {displayName!==undefined ? <><a href="#profile" className="profile-name profile-link" title="Открыть мой профиль" aria-label={(displayName||'Личный кабинет')+' — открыть профиль'} onClick={e=>{e.preventDefault();navigate('profile');}}>{displayName||'Личный кабинет'}</a><button type="button" className="icon-button" aria-label="Выйти из аккаунта" onClick={onLogout} disabled={busy}><LogOut size={20}/></button></> :
+        {displayName!==undefined ? <><a href="#profile" className="profile-name profile-link" title="Открыть мой профиль" aria-label={(displayName||'Личный кабинет')+' — открыть профиль'} onClick={e=>{e.preventDefault();navigate('profile');}}><UserRound className="profile-link-icon" size={19} aria-hidden="true"/><span className="profile-link-name">{displayName||'Личный кабинет'}</span></a><button type="button" className="icon-button" aria-label="Выйти из аккаунта" onClick={onLogout} disabled={busy}><LogOut size={20}/></button></> :
           <a href="#account" className="button outline" onClick={e=>{e.preventDefault();navigate('account');}}><LogIn size={17}/>Войти</a>}
         <button type="button" className="mobile-menu-button icon-button" aria-label={menuOpen?'Закрыть меню':'Открыть меню'} aria-expanded={menuOpen} aria-controls="site-navigation" onClick={()=>setMenuOpen(open=>!open)}>{menuOpen?<X size={23}/>:<Menu size={23}/>}</button>
       </div>

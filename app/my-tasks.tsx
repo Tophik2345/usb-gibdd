@@ -7,6 +7,7 @@ import { appealStatuses, type AppealSummary } from '@/lib/department-api';
 import { useDepartmentData } from './use-department-data';
 import { departmentLink } from './department-section';
 import './my-tasks.css';
+import TrainingProgress from './training-progress';
 
 const clearanceLabels: Record<ClearanceStatus, string> = {
   preparing: 'Идёт подготовка', pending: 'На рассмотрении', approved: 'Допуск подтверждён',
@@ -61,8 +62,8 @@ export default function MyTasks({ data, busy, workspaceError, onRefresh, onAssig
         <h3 id="my-assignments-title"><CalendarClock size={20} aria-hidden="true" />Задания со сроками<span className="count-pill">{assignments.length}</span></h3>
         {assignments.length ? <ul className="my-tasks-list">{assignments.slice(0, 3).map(item => {
           const overdue = item.status === 'overdue' || Date.parse(item.dueAt) < now;
-          return <li key={item.id}><div className="my-tasks-item-heading"><h4>{item.testTitle}</h4><span className={'badge ' + (overdue ? 'orange-badge' : 'blue-badge')}>{overdue ? 'Просрочено' : 'Назначено'}</span></div>
-            <p className="my-tasks-note">Срок: <time dateTime={item.dueAt}>{formatSiteDate(item.dueAt)}</time></p>
+          return <li key={item.id} className={'my-task-deadline'+(overdue?' is-overdue':Date.parse(item.dueAt)<=now+86400000?' is-soon':'')}><div className="my-tasks-item-heading"><h4>{item.testTitle}</h4><span className={'badge ' + (overdue ? 'orange-badge' : 'blue-badge')}>{overdue ? 'Просрочено' : 'Назначено'}</span></div>
+            <p className="my-tasks-note my-task-due">Срок: <time dateTime={item.dueAt}>{formatSiteDate(item.dueAt)}</time></p>
             <button type="button" className="button outline" disabled={busy || refreshing} onClick={() => onStartAssignment(item)}>{item.inProgressAttemptId ? 'Продолжить задание' : 'Начать задание'}</button>
           </li>;
         })}</ul> : <p className="my-tasks-empty">Нет заданий, ожидающих сдачи.</p>}
@@ -83,7 +84,7 @@ export default function MyTasks({ data, busy, workspaceError, onRefresh, onAssig
         <ResourceState loading={clearance.loading} error={clearance.error} onRetry={clearance.refresh}>
           {clearance.data && <div className="my-tasks-clearance"><strong>{clearanceLabels[clearance.data.status]}</strong>
             <p className="my-tasks-note">{clearance.data.status === 'preparing' && clearance.data.ready ? 'Материалы и тесты пройдены. Можно подать заявку руководителю.' : clearanceHints[clearance.data.status]}</p>
-            <p className="my-tasks-note">Материалы: {clearance.data.materials.filter(item => item.readAt).length} из {clearance.data.materials.length} · Тесты: {clearance.data.tests.filter(item => item.passed).length} из {clearance.data.tests.length}</p>
+            <TrainingProgress materialsRead={clearance.data.materials.filter(item => item.readAt).length} materialCount={clearance.data.materials.length} testsPassed={clearance.data.tests.filter(item => item.passed).length} testCount={clearance.data.tests.length}/>
             {clearance.data.note && <p className="my-tasks-decision">Комментарий руководителя: {clearance.data.note}</p>}
           </div>}
         </ResourceState>

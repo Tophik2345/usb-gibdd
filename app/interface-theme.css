@@ -1,0 +1,180 @@
+/* Shared reading surfaces and a compact layout over the established identity. */
+:root {
+  --surface: #171e28;
+  --surface-raised: #1d2632;
+  --text-muted: #bec8d4;
+  --muted-foreground: #b7c3d0;
+}
+
+body::before {
+  background: linear-gradient(180deg, #080d15bf, #080d15ed),
+    url('/usb-gibdd-background.webp') center / cover no-repeat;
+}
+.site-main { background: linear-gradient(180deg, #0c121b20, #0c121b70); }
+.app-install-footer > a { color: var(--red-soft); }
+.profile-link-icon { display: none; }
+.profile-link-name { display: block; overflow: hidden; text-overflow: ellipsis; }
+
+.personal-tool, .attestation, .error-analysis, .leader-dashboard {
+  margin: 28px auto;
+  padding: 30px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px #0003;
+}
+.personal-tool .page-heading, .attestation .page-heading,
+.error-analysis .page-heading, .leader-dashboard .page-heading { margin-top: 0; }
+.bulk-assignments, .search-group, .attestation-clearance,
+.analysis-metrics article, .analysis-topics li {
+  background: var(--surface-raised);
+}
+.dashboard-panel, .dashboard-metrics article { background: var(--surface-raised); }
+.history-events li, .search-results li, .analysis-questions li { line-height: 1.65; }
+
+/* Account facts no longer separate the profile heading from current tasks. */
+.user-profile { padding-top: 28px; }
+.user-profile h1 { margin-bottom: 18px; }
+.profile-card { padding: 20px 24px; background: var(--surface); }
+.profile-card-heading { padding: 0; border: 0; gap: 18px; }
+.profile-card h2 { font-size: 23px; margin-bottom: 8px; }
+.profile-avatar { width: 58px; height: 58px; font-size: 25px; flex-shrink: 0; }
+.profile-identity { flex: 1; min-width: 0; }
+.profile-rank { max-width: 42%; font-size: 15px; overflow-wrap: anywhere; }
+.profile-rank > strong { display: block; font-weight: 650; color: #edf2f7; }
+.profile-rank .staff-rank-group { margin-top: 4px; color: var(--muted-foreground); }
+.user-profile .my-tasks { margin-top: 24px; }
+.profile-statistics article { background: var(--surface); }
+.profile-statistics article > strong { font-size: 36px; line-height: 1.2; margin-top: 10px; }
+.score-meter { height: 8px; margin-top: 14px; overflow: hidden; border-radius: 8px; background: #35404f; }
+.score-meter > span { display: block; height: 100%; background: #d76d83; border-radius: inherit; }
+.profile-account-details {
+  margin-top: 24px; padding: 0 22px; border: 1px solid var(--border);
+  border-radius: 12px; background: var(--surface);
+}
+.profile-account-details summary { padding: 18px 0; font-weight: 600; cursor: pointer; }
+.profile-account-details summary:focus-visible { outline: 3px solid var(--ring); outline-offset: 4px; }
+.profile-account-details .profile-details { margin: 0 0 20px; }
+
+/* Primary tabs are always visible; leader controls wrap on a separate row. */
+.workspace-tabs .test-tools {
+  height: auto; min-height: 0; overflow: visible; border: 0;
+  margin: 22px 0 28px; padding: 0; width: 100%;
+}
+.workspace-tabs .test-navigation[data-slot=tabs-list] {
+  display: flex; align-items: stretch; flex-wrap: wrap;
+  width: 100%; min-width: 0; height: auto !important;
+  gap: 12px !important; padding: 0; background: transparent;
+}
+.test-tabs-primary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); flex: 1 1 360px; gap: 8px; }
+.test-tabs-secondary { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: 8px; }
+.workspace-tabs .test-navigation [data-slot=tabs-trigger] {
+  min-width: 0; flex: 1 1 auto; height: auto; min-height: 48px;
+  padding: 12px; gap: 7px; white-space: normal;
+  border: 1px solid #455263; border-radius: 9px;
+  background: #171e28; color: #ccd6e1; font-size: 14px; line-height: 1.35;
+}
+.workspace-tabs .test-navigation [data-slot=tabs-trigger]::after { display: none; }
+.workspace-tabs .test-navigation [data-slot=tabs-trigger][data-state=active] {
+  background: #422632; border-color: #d9778d; color: #ffe1e8 !important;
+  box-shadow: inset 0 -2px #d9778d;
+}
+.workspace-tabs .test-navigation [data-slot=tabs-trigger]:focus-visible {
+  outline: 3px solid var(--ring); outline-offset: 3px;
+}
+.workspace-tabs .test-navigation [data-slot=tabs-trigger] > svg { width: 17px; height: 17px; }
+.test-navigation .count-pill { margin: 0; font-size: 10px; padding: 2px 4px; }
+.workspace-tabs .test-tabs-secondary [data-slot=tabs-trigger] { font-size: 13px; background: #151b24; }
+
+/* Progress counts are distinct from the decision to grant clearance. */
+.training-progress {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px;
+  margin: 22px 0; padding: 22px; border: 1px solid var(--border);
+  border-radius: 12px; background: var(--surface-raised);
+}
+.training-progress-item { min-width: 0; }
+.training-progress-label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 11px; }
+.training-progress-label > span { font-size: 14px; color: #dbe3ec; }
+.training-progress-label > strong { font-size: 25px; font-weight: 750; white-space: nowrap; line-height: 1.2; }
+.training-progress-label small { font-size: 15px; font-weight: 500; color: var(--muted-foreground); }
+.training-progress-bar[data-slot=progress] { height: 9px; background: #35414f; }
+.training-progress-bar [data-slot=progress-indicator] { background: #d76d83; }
+.is-complete .training-progress-bar [data-slot=progress-indicator] { background: #78c5a5; }
+.training-progress-hint { grid-column: 1 / -1; color: var(--muted-foreground); font-size: 12px; line-height: 1.6; }
+.training-progress-empty { color: var(--muted-foreground); font-size: 13px; line-height: 1.5; }
+.my-tasks-clearance .training-progress { grid-template-columns: 1fr; margin: 16px 0 4px; padding: 0; border: 0; background: transparent; gap: 17px; }
+.my-tasks-clearance > strong { font-size: 18px; }
+.my-task-due { margin-top: 10px; font-size: 14px; }
+.my-task-due time { font-weight: 650; color: #e0e8f0; }
+.my-tasks-list li.my-task-deadline { padding-left: 12px; border-left: 3px solid #455c76; }
+.my-tasks-list li.my-task-deadline.is-overdue { border-left-color: #eca681; }
+.my-task-deadline.is-overdue .my-task-due time { color: #f5be9f; }
+.my-tasks-list li.my-task-deadline.is-soon { border-left-color: #d0bb78; }
+.assignment-deadline strong { font-size: 16px; font-variant-numeric: tabular-nums; }
+.assignment-card.is-overdue { border-left: 3px solid #eca681; }
+.assignment-card.is-overdue .assignment-deadline strong { color: #f5be9f; }
+.dashboard-urgent strong { color: #f5be9f; }
+.dashboard-metrics article > strong, .stat > div > strong { font-size: 34px; font-variant-numeric: tabular-nums; }
+.dashboard-list time, .calendar-events time { font-size: 14px; }
+.results-table .result-score strong { font-size: 22px; color: #edf3f8; font-variant-numeric: tabular-nums; }
+.attestation-results li { margin-top: 14px; padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-raised); }
+.attestation-score { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin: 12px 0; }
+.attestation-score > strong { font-size: 32px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.attestation-clearance.state-approved { border-color: #537f70; }
+
+@media (max-width: 1000px) {
+  .test-tabs-primary, .test-tabs-secondary { flex-basis: 100%; }
+}
+@media (max-width: 760px) {
+  body::before { background-position: center, 28% center; }
+  .site-header-top { flex-wrap: nowrap; padding: 12px 16px; gap: 10px; }
+  .site-header .site-motto { display: none; }
+  .site-brand-link { min-width: 0; flex-shrink: 1; }
+  .site-header .brand { gap: 7px; font-size: 14px; letter-spacing: 0; }
+  .site-header .brand-mark { width: 30px; height: 38px; }
+  .site-header .brand-caption { display: none; }
+  .site-account { gap: 4px; flex-shrink: 0; }
+  .site-account > .icon-button, .site-account .notification-bell,
+  .site-account .mobile-menu-button, .site-account a.profile-link {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; min-width: 36px; height: 38px; padding: 0;
+  }
+  .profile-link-icon { display: block; }
+  .profile-link-name { display: none; }
+  .site-account a.profile-link { border-radius: 8px; background: #342530; border: 1px solid #765063; }
+  .personal-tool, .attestation, .error-analysis, .leader-dashboard { margin-top: 20px; padding: 20px; border-radius: 13px; }
+  .profile-card { padding: 18px; }
+  .profile-card-heading { flex-wrap: wrap; gap: 13px; }
+  .profile-rank { max-width: none; width: 100%; padding-top: 12px; border-top: 1px solid var(--border); }
+  .profile-avatar { width: 48px; height: 48px; font-size: 22px; }
+  .profile-card h2 { font-size: 21px; }
+  .training-progress { grid-template-columns: 1fr; padding: 18px; }
+  .clearance-banner { display: block; position: relative; }
+  .clearance-banner .clearance-icon { position: absolute; top: 22px; left: 22px; width: 40px; height: 44px; }
+  .clearance-banner > div > .eyebrow { display: block; padding-left: 54px; min-height: 44px; }
+  .clearance-banner h2 { margin-top: 16px; }
+  .workspace-tabs .test-tools { margin-top: 16px; margin-bottom: 20px; }
+  .test-tabs-primary { gap: 6px; }
+  .workspace-tabs .test-tabs-primary [data-slot=tabs-trigger] { padding: 11px 6px; gap: 5px; font-size: 13px; }
+  .workspace-tabs .test-tabs-primary [data-slot=tabs-trigger] > svg { display: none; }
+  .workspace-tabs .test-tabs-secondary [data-slot=tabs-trigger] { flex: 1 1 120px; min-height: 42px; padding: 10px; font-size: 12px; }
+  .profile-account-details { padding: 0 18px; }
+  .dashboard-metrics article > strong, .stat > div > strong { font-size: 28px; }
+  .attestation-results li { padding: 16px; }
+}
+@media (max-width: 360px) {
+  .site-header-top { padding: 10px 12px; gap: 6px; }
+  .site-header .brand { font-size: 13px; gap: 6px; }
+  .site-header .brand-mark { width: 26px; height: 34px; }
+  .site-account { gap: 3px; }
+  .site-account > .icon-button, .site-account .notification-bell,
+  .site-account .mobile-menu-button, .site-account a.profile-link { width: 32px; min-width: 32px; height: 36px; }
+  .site-account .button { padding: 7px 8px; gap: 4px; font-size: 12px; }
+  .personal-tool, .attestation, .error-analysis, .leader-dashboard { padding: 16px; }
+  .profile-card { padding: 16px; }
+  .profile-rank { font-size: 14px; }
+  .workspace-tabs .test-tabs-primary [data-slot=tabs-trigger] { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .training-progress-bar [data-slot=progress-indicator] { transition: none; }
+}

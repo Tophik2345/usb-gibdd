@@ -66,7 +66,7 @@ export default function AssignmentsPanel({data,busy,onStart,onOpen,onRefresh,ini
   };
   const cards=(rows:Assignment[],own:boolean)=>rows.length?<div className="assignment-list">{rows.map(item=>{
     const current=status(item);const pending=current==='assigned'||current==='overdue';
-    return <article className={'assignment-card'+(focusAssignment?.id===item.id?' is-focused':'')} id={'assignment-'+item.id} key={item.id}>
+    return <article className={'assignment-card is-'+current+(focusAssignment?.id===item.id?' is-focused':'')} id={'assignment-'+item.id} key={item.id}>
       <div className="assignment-card-heading"><span className={'badge '+(current==='passed'?'green-badge':current==='overdue'?'orange-badge':current==='cancelled'?'neutral':'blue-badge')}>{labels[current]}</span><span className="subtle">{own?`Автор: ${item.authorLogin}`:`Сотрудник: ${item.employeeLogin}`}</span></div>
       <h2>{item.testTitle}</h2>
       <p className="assignment-deadline"><CalendarClock size={17}/>Срок: <strong>{when(item.dueAt)}</strong></p>
