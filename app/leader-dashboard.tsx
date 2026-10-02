@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { CalendarClock, ChartNoAxesCombined, ClipboardCheck, GraduationCap, Loader2, RefreshCw } from 'lucide-react';
+import { CalendarClock, ChartNoAxesCombined, ClipboardCheck, GraduationCap, Loader2, RefreshCw, Printer } from 'lucide-react';
+import DashboardPrint from './dashboard-print';
 import { dashboardApi, type Dashboard } from '@/lib/dashboard-api';
 import { formatSiteDate } from '@/lib/date-time';
 import { resultPassed } from '@/lib/results-export';
@@ -20,7 +21,9 @@ export default function LeaderDashboard({ onAssignment, onAssignments, onResult,
   const percent = (value: number | null) => value === null ? '—' : value.toLocaleString('ru-RU') + '%';
   const tests = data?.tests, clearances = data?.clearances;
   return <section className="leader-dashboard" aria-labelledby="dashboard-title">
-    <header className="page-heading"><div><div className="eyebrow">КОНТРОЛЬ ПОДГОТОВКИ</div><h1 id="dashboard-title">Сводка руководителя</h1><p>Задания, результаты проверок и заявки на допуск.</p></div><button type="button" className="button outline" disabled={loading} onClick={() => setRevision(n => n + 1)}><RefreshCw size={17} aria-hidden="true"/>Обновить сводку</button></header>
+    <header className="page-heading"><div><div className="eyebrow">КОНТРОЛЬ ПОДГОТОВКИ</div><h1 id="dashboard-title">Сводка руководителя</h1><p>Задания, результаты проверок и заявки на допуск.</p></div><div className="dashboard-print-actions"><button type="button" className="button outline" disabled={loading} onClick={() => setRevision(n => n + 1)}><RefreshCw size={17} aria-hidden="true"/>Обновить сводку</button><button type="button" className="button outline" disabled={loading || !data || !!error} onClick={() => window.print()}><Printer size={17} aria-hidden="true"/>Печать / PDF</button></div></header>
+    <p className="dashboard-print-hint">Для PDF выберите «Сохранить как PDF» в окне печати.</p>
+    {data && <DashboardPrint data={data}/>}
     <div className="dashboard-controls">{(!data||tests)&&<label className="field">Период результатов<select value={days} onChange={e => setDays(Number(e.target.value))}><option value={7}>7 дней</option><option value={30}>30 дней</option><option value={90}>90 дней</option></select></label>}{data && <p>Обновлено: {formatSiteDate(data.serverNow)}<br/>Сроки и заявки показаны на текущий момент.</p>}</div>
     {loading && <p className="dashboard-loading" role="status"><Loader2 size={19} className="spin" aria-hidden="true"/>Загружаем сводку…</p>}
     {error && <div className="error-banner" role="alert"><span>{error}</span><button type="button" className="button outline" onClick={() => setRevision(n => n + 1)}>Повторить</button></div>}

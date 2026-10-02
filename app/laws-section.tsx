@@ -5,21 +5,11 @@ import { portalApi, type Bookmark } from '@/lib/portal-api';
 import { matchesLaw, lawExcerpt, normalizeLawText, type LawText, type LawEntry } from '@/lib/law-search';
 import SectionLinks from './section-links';
 
-const cache = new Map<string,LawText>();
-const pending = new Map<string,Promise<LawText>>();
+import { lawCache as cache, loadDocument } from '@/lib/law-loader';
 const articleWord=(n:number)=>n%100>=11&&n%100<=14?'статей':n%10===1?'статья':n%10>=2&&n%10<=4?'статьи':'статей';
 const pointWord=(n:number)=>n%100>=11&&n%100<=14?'пунктов':n%10===1?'пункт':n%10>=2&&n%10<=4?'пункта':'пунктов';
 const articleCount=documents.filter(d=>d.unit!=='point').reduce((n,d)=>n+d.articleCount,0);
 const pointCount=documents.filter(d=>d.unit==='point').reduce((n,d)=>n+d.articleCount,0);
-function loadDocument(id:string):Promise<LawText>{
-  if(cache.has(id))return Promise.resolve(cache.get(id)!);
-  if(pending.has(id))return pending.get(id)!;
-  const request=fetch(`${import.meta.env.BASE_URL}laws/${id}.json`).then(r=>{if(!r.ok)throw new Error('Не удалось загрузить документ.');return r.json();}).then((data:LawText)=>{
-    if(data.id!==id||!Array.isArray(data.entries))throw new Error('Некорректный документ.');
-    cache.set(id,data);return data;
-  }).finally(()=>pending.delete(id));
-  pending.set(id,request);return request;
-}
 function lawLocation(){
   const params=new URLSearchParams(window.location.hash.split('?')[1]||'');
   const id=params.get('document');const article=params.get('article')||'';

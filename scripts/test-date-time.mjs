@@ -34,5 +34,14 @@ if (!process.argv.includes('--worker')) {
   for (const invalid of ['', '2026-02-29T12:00', '2026-04-31T12:00', '2026-13-01T00:00', '2026-10-01T24:00', '2026-10-01T01:60', '2026-10-01', '2026-10-01T01:46Z']) {
     assert.throws(() => fromSiteDateTimeInput(invalid), /корректную дату/);
   }
+  const calendarJs = ts.transpileModule(fs.readFileSync(new URL('../lib/personal-calendar.ts', import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.ES2022, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const { calendarDays, shiftMonth } = await import('data:text/javascript;base64,' + Buffer.from(calendarJs).toString('base64'));
+  const leap = calendarDays('2028-02');
+  assert.equal(leap.length, 42); assert.equal(new Set(leap).size, 42); assert(leap.includes('2028-02-29'));
+  assert.equal(new Date(leap[0] + 'T00:00:00Z').getUTCDay(), 1);
+  assert(!calendarDays('2026-02').includes('2026-02-29'));
+  assert.equal(shiftMonth('2026-12', 1), '2027-01'); assert.equal(shiftMonth('2026-01', -1), '2025-12');
+  assert.equal(toSiteDateTimeInput('2026-09-30T23:30:00Z').slice(0, 10), '2026-10-01');
+  assert.throws(() => calendarDays('2026-13'), /Некорректный/);
   console.log(`Moscow date entry, display and validation pass with device TZ=${process.env.TZ}`);
 }

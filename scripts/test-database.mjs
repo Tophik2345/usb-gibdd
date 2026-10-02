@@ -13,6 +13,7 @@ import { checkStaffRanks } from './test-staff-ranks.mjs';
 import { checkRankTestPermissions } from './test-rank-test-permissions.mjs';
 import { checkNotifications } from './test-notifications.mjs';
 import { checkDashboard } from './test-dashboard.mjs';
+import { checkSearchHistory } from './test-search-history.mjs';
 
 const root=resolve(import.meta.dirname,'..');
 const db=new PGlite();
@@ -190,5 +191,6 @@ try {
   await checkRankTestPermissions({db,asUser,rpc,denied,base,checks});
   await checkNotifications({db,asUser,denied,checks});
   await checkDashboard({db,asUser,rpc,denied,checks});
+  await checkSearchHistory({db,asUser,rpc,denied,checks});
   console.log(JSON.stringify({passed:checks.length,checks,scope:'Actual PostgreSQL engine (PGlite), migrations, database roles and RPC; Auth JWT claims mocked locally'},null,2));
 } finally {await db.close();}

@@ -1,4 +1,5 @@
 import { BookOpen, ClipboardCheck } from 'lucide-react';
+import { useEffect } from 'react';
 import { newcomerCards, dutyCards } from '@/lib/employee-guides';
 import { roadCards, projectRuleCards, gameplayCards } from '@/lib/road-guides';
 import SectionLinks from './section-links';
@@ -28,6 +29,15 @@ function openTopic(card: number | string) {
 export default function EmployeeGuide({ kind }: { kind: 'new-employees' | 'duties' }) {
   const newcomer = kind === 'new-employees';
   const cards = newcomer ? [...newcomerCards, ...roadCards] : dutyCards;
+  useEffect(() => {
+    const open = () => {
+      const topic = new URLSearchParams(window.location.hash.split('?')[1] || '').get('topic');
+      if (!topic || !/^(?:newcomer-card|duties-card|guide-project|guide-gameplay)-\d+$/.test(topic)) return;
+      const target = document.getElementById(topic); target?.focus({ preventScroll: true }); target?.scrollIntoView({ block: 'start', behavior: 'instant' });
+    };
+    const frame = requestAnimationFrame(open); window.addEventListener('hashchange', open);
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('hashchange', open); };
+  }, [kind]);
 
   return (
     <section className="employee-guide">
@@ -69,8 +79,8 @@ export default function EmployeeGuide({ kind }: { kind: 'new-employees' | 'dutie
           <article
             className="employee-guide-card"
             key={card.title}
-            id={newcomer ? `newcomer-card-${index + 1}` : undefined}
-            tabIndex={newcomer ? -1 : undefined}
+            id={`${newcomer ? 'newcomer' : 'duties'}-card-${index + 1}`}
+            tabIndex={-1}
           >
             <h2>{card.title}</h2>
             <ul>{card.items.map(item => <li key={item}>{item}</li>)}</ul>
@@ -88,12 +98,12 @@ export default function EmployeeGuide({ kind }: { kind: 'new-employees' | 'dutie
       <section className="guide-supplement" id="newcomer-card-project-rules" tabIndex={-1} aria-labelledby="project-rules-title">
         <h2 id="project-rules-title">Правила проекта для госслужащих</h2>
         <p className="guide-source-note">Краткая памятка по опубликованным правилам администрации. При разборе ситуации учитывай полный пункт и его исключения.</p>
-        <div className="employee-guide-grid">{projectRuleCards.map(card=><article className="employee-guide-card" key={card.title}><h3>{card.title}</h3><ul>{card.items.map(item=><li key={item}>{item}</li>)}</ul><p className="guide-source-note">{card.reference}</p></article>)}</div>
+        <div className="employee-guide-grid">{projectRuleCards.map((card,index)=><article className="employee-guide-card" key={card.title} id={`guide-project-${index + 1}`} tabIndex={-1}><h3>{card.title}</h3><ul>{card.items.map(item=><li key={item}>{item}</li>)}</ul><p className="guide-source-note">{card.reference}</p></article>)}</div>
       </section>
       {newcomer&&<section className="guide-supplement" id="newcomer-card-gameplay" tabIndex={-1} aria-labelledby="gameplay-title">
         <h2 id="gameplay-title">Практика в игре</h2>
         <p className="guide-source-note">Общие механики ГИБДД из вики проекта. Если назначение клавиш изменено, проверь настройки своего клиента.</p>
-        <div className="employee-guide-grid">{gameplayCards.map(card=><article className="employee-guide-card" key={card.title}><h3>{card.title}</h3><ul>{card.items.map(item=><li key={item}>{item}</li>)}</ul></article>)}</div>
+        <div className="employee-guide-grid">{gameplayCards.map((card,index)=><article className="employee-guide-card" key={card.title} id={`guide-gameplay-${index + 1}`} tabIndex={-1}><h3>{card.title}</h3><ul>{card.items.map(item=><li key={item}>{item}</li>)}</ul></article>)}</div>
       </section>}
 
       <div className="guide-test-cta">

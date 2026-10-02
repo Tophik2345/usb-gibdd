@@ -1,7 +1,7 @@
-import type { SitePage } from './site-header';
+import { siteSections } from './site-header';
 import './section-links.css';
 
-type SectionPage = Exclude<SitePage, 'account' | 'profile'>;
+type SectionPage = typeof siteSections[number]['id'];
 type SectionLink = { label: string; href: string; external?: boolean; title?: string };
 
 const department: SectionLink = { label: 'УСБ ГИБДД', href: '#department?tab=staff', title: 'Состав подразделения УСБ' };
