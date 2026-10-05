@@ -27,7 +27,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Verify account changes and stale responses
         run: pnpm test:session
-      - name: Verify registration codes and repeat confirmation
+      - name: Verify registration and existing-account email codes
         run: pnpm test:confirmation
       - name: Verify password recovery and code cooldown
         run: pnpm test:recovery

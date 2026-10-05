@@ -24,7 +24,7 @@ export function authErrorMessage(error: unknown, operation: AuthOperation): stri
     email_address_not_authorized: 'Отправка писем на этот адрес пока недоступна. Обратитесь к администратору сайта.',
     otp_expired: 'Код недействителен или срок его действия истёк. Запросите новый код.',
     otp_invalid: 'Введите цифровой код из последнего письма.',
-    otp_disabled: 'Подтверждение кодом временно недоступно. Обратитесь к администратору сайта.',
+    otp_disabled: 'Не удалось запросить код. Проверьте адрес почты; для нового аккаунта сначала зарегистрируйтесь.',
     confirmation_session_missing: 'Не удалось завершить подтверждение. Попробуйте ещё раз или войдите в аккаунт, если почта уже подтверждена.',
   };
   if (operation === 'password' && ['session_not_found', 'refresh_token_not_found', 'refresh_token_already_used'].includes(value.code || '')) return messages.recovery_session_missing;

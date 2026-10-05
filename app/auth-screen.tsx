@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { authConfigured, discordEnabled, siteReturnUrl, signInWithLogin, supabase } from '@/lib/supabase';
 import { authErrorMessage } from '@/lib/auth-errors';
-import { resendSignupCode, verifySignupCode } from '@/lib/email-confirmation';
+import { sendEmailCode, verifyEmailCode } from '@/lib/email-confirmation';
 import Emblem from './emblem';
 import { beginRecovery } from '@/lib/password-recovery';
 import { useCodeCooldown } from '@/lib/code-cooldown';
@@ -27,7 +27,7 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
   const busy = pending !== null;
   const ready = authConfigured;
   const discord = ready && discordEnabled;
-  const confirmationStep = mode === 'register' && confirming;
+  const confirmationStep = confirming;
 
   useEffect(() => {
     if (!ready) setError('Вход временно недоступен. Обратитесь к администратору сайта.');
@@ -56,7 +56,7 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
         setPassword('');
         if (!data.session) {
           wait.start(); setConfirming(true); setCode('');
-          setNotice('Проверьте почту и папку «Спам». Используйте последнее письмо подтверждения. Если аккаунт уже подтверждён, перейдите к входу.');
+          setNotice('Проверьте почту и папку «Спам». Введите код из последнего письма подтверждения.');
           return;
         }
       } else {
@@ -73,10 +73,10 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
     if (busy || !ready || wait.remaining || !emailInput.current?.reportValidity()) return;
     setPending('resend'); setError(''); setNotice('');
     try {
-      await resendSignupCode(email);
+      await sendEmailCode(email);
       wait.start();
       setCode('');
-      setNotice('Запрос на повторную отправку принят. Проверьте почту и папку «Спам»; используйте последнее письмо подтверждения. Если почта уже подтверждена, перейдите к входу.');
+      setNotice('Запрос на отправку кода принят. Проверьте почту и папку «Спам». Используйте код из последнего письма.');
     } catch (error) {
       setError(authErrorMessage(error, 'resend'));
     } finally { setPending(null); }
@@ -87,7 +87,7 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
     if (busy || !ready) return;
     setPending('verify'); setError(''); setNotice('');
     try {
-      await verifySignupCode(email, code);
+      await verifyEmailCode(email, code);
       setCode('');
       onSuccess();
     } catch (error) {
@@ -116,15 +116,15 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
       <label className="field">Код подтверждения
         <Input required minLength={6} maxLength={10} pattern="[0-9]{6,10}" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={event => setCode(event.target.value.replace(/\s/g, ''))} placeholder="Код из письма" disabled={busy} autoFocus={!!email}/>
       </label>
-      <p className="auth-hint">Если в письме только ссылка, откройте её в том же браузере, где начали регистрацию. Код вводите, если он указан в письме.</p>
+      <p className="auth-hint">Код работает и для уже подтверждённой почты. После подтверждения вы войдёте в аккаунт. Ссылку из письма открывайте в том же браузере, где запросили код.</p>
       {error && <p role="alert" className="inline-error">{error}</p>}
       <button className="button primary full" type="submit" disabled={busy || !ready}>
-        {pending === 'verify' ? <Loader2 className="spin" size={18}/> : <ShieldCheck size={18}/>} {pending === 'verify' ? 'Подтверждаем…' : 'Подтвердить почту'}
+        {pending === 'verify' ? <Loader2 className="spin" size={18}/> : <ShieldCheck size={18}/>} {pending === 'verify' ? 'Подтверждаем…' : 'Подтвердить и войти'}
       </button>
       <button className="button outline full" type="button" disabled={busy || !ready || wait.remaining > 0} onClick={resend}>
-        {pending === 'resend' && <Loader2 className="spin" size={18}/>} {pending === 'resend' ? 'Отправляем…' : wait.remaining ? `Повторная отправка через ${wait.remaining} с` : 'Отправить письмо повторно'}
+        {pending === 'resend' && <Loader2 className="spin" size={18}/>} {pending === 'resend' ? 'Отправляем…' : wait.remaining ? `Повторная отправка через ${wait.remaining} с` : 'Отправить код'}
       </button>
-      <button className="text-button" type="button" disabled={busy} onClick={() => { setConfirming(false); setCode(''); setError(''); setNotice(''); }}>Вернуться к регистрации</button>
+      <button className="text-button" type="button" disabled={busy} onClick={() => { setConfirming(false); setCode(''); setError(''); setNotice(''); }}>{mode === 'login' ? 'Вернуться к входу по паролю' : 'Вернуться к регистрации'}</button>
     </form> : <form onSubmit={submit} className="auth-form">
       <label className="field">Логин
         <Input value={name} onChange={event => setName(event.target.value)} required minLength={2} maxLength={100} autoComplete="username" placeholder={mode === 'register' ? 'Имя Фамилия Статик' : 'Введите логин'} disabled={busy}/>
@@ -142,6 +142,7 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
         {pending === 'submit' ? <Loader2 className="spin" size={18}/> : <LockKeyhole size={18}/>} {mode === 'login' ? 'Войти' : 'Создать аккаунт'}
       </button>
       {mode === 'login' && <button className="text-button" type="button" disabled={busy || !ready} onClick={() => beginRecovery(email)}>Забыли пароль?</button>}
+      {mode === 'login' && <button className="text-button" type="button" disabled={busy || !ready} onClick={() => { setConfirming(true); setCode(''); setError(''); setNotice(''); }}>Войти по коду из письма</button>}
       {mode === 'register' && <button className="text-button" type="button" disabled={busy} onClick={() => { setConfirming(true); setCode(''); setError(''); setNotice(''); }}>Уже получали письмо? Подтвердить почту</button>}
     </form>}
   </>;
@@ -149,9 +150,9 @@ export default function AuthScreen({ onSuccess, header }: { onSuccess: () => voi
   return <div className="auth-page">{header}<main className="auth-layout">
     <section className="auth-form-panel">
       <div className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</div>
-      <h1>{mode === 'login' ? 'Вход в аккаунт' : confirmationStep ? 'Подтвердите почту' : 'Начнём с аккаунта.'}</h1>
-      <p className="auth-subtitle">{mode === 'login' ? 'Введите логин и пароль.' : confirmationStep ? 'Перейдите по ссылке из письма или введите код, если он указан.' : 'Создайте аккаунт для тестов и результатов.'}</p>
-      <Tabs className="gap-0" value={mode} onValueChange={value => { setMode(value); setError(''); setNotice(''); }}>
+      <h1>{confirmationStep ? mode === 'login' ? 'Вход по коду' : 'Подтвердите почту' : mode === 'login' ? 'Вход в аккаунт' : 'Начнём с аккаунта.'}</h1>
+      <p className="auth-subtitle">{confirmationStep ? 'Получите код на почту своего аккаунта и введите его ниже.' : mode === 'login' ? 'Введите логин и пароль.' : 'Создайте аккаунт для тестов и результатов.'}</p>
+      <Tabs className="gap-0" value={mode} onValueChange={value => { setMode(value); setConfirming(false); setCode(''); setError(''); setNotice(''); }}>
         <TabsList className="auth-tabs">
           <TabsTrigger value="login" disabled={busy}>Войти</TabsTrigger>
           <TabsTrigger value="register" disabled={busy}>Создать аккаунт</TabsTrigger>
