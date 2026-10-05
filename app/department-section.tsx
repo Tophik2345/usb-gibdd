@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Users, FileText, MessageSquare, LogIn, Loader2 } from 'lucide-react';
+import { Users, FileText, MessageSquare, LogIn, Loader2, Flag } from 'lucide-react';
 import StaffSection from './staff-section';
 import ReportTemplates from './report-templates';
 import AppealsSection from './appeals-section';
+import FeedbackSection from './feedback-section';
 import SectionLinks from './section-links';
 import './department.css';
 
@@ -10,6 +11,7 @@ export const departmentTabs = [
   { id: 'staff', label: 'Состав УСБ', description: 'Сотрудники, должности и служебные профили', icon: Users },
   { id: 'reports', label: 'Рапорты и отчёты', description: 'Шаблоны проверок, мероприятий и смен', icon: FileText },
   { id: 'appeals', label: 'Обращения в УСБ', description: 'Подача обращения и ответ руководства', icon: MessageSquare },
+  { id: 'feedback', label: 'Ошибки в материалах', description: 'Сообщения о неточностях и их исправление', icon: Flag },
 ] as const;
 export type DepartmentTab = typeof departmentTabs[number]['id'];
 function route() {
@@ -39,6 +41,7 @@ export default function DepartmentSection({ signedIn, canManage, displayName }: 
     {!signedIn && current.tab !== 'reports' ? <div className="department-empty"><LogIn size={30} /><h2>{current.tab === 'staff' ? 'Состав доступен сотрудникам' : 'Войдите, чтобы подать обращение'}</h2><p>{current.tab === 'staff' ? 'Войдите в аккаунт с подтверждённой почтой, чтобы открыть служебные профили.' : 'После входа вы сможете отправить обращение, следить за статусом и прочитать ответ руководства.'}</p><a className="button primary" href="#account">Войти в аккаунт</a></div>
       : current.tab === 'staff' ? <StaffSection canManage={canManage} memberId={current.member} />
       : current.tab === 'reports' ? <ReportTemplates displayName={displayName} />
+      : current.tab === 'feedback' ? <FeedbackSection canManage={canManage}/>
       : <AppealsSection canManage={canManage} appealId={current.appeal} initialScope={current.scope} />}
   </section>;
 }

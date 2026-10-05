@@ -4,6 +4,7 @@ import { readFile, writeFile, rename } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { officialUrl } from './collect-forum-sources.mjs';
+import { historyFiles } from './rule-history.mjs';
 
 const clean = value => value.replace(/[\u200b\ufeff]/g, '').replace(/\s+/g, ' ').trim();
 const normalized = value => clean(value).toLocaleLowerCase('ru-RU').replace(/ё/g, 'е');
@@ -99,6 +100,7 @@ export async function syncLaws(root = resolve(import.meta.dirname, '..'), reques
   const metadata = JSON.parse(await readFile(resolve(root, 'lib/law-documents.json'), 'utf8'));
   if (configs.length !== 8 || metadata.length !== 8 || new Set(configs.map(c => c.id)).size !== 8) throw new Error('Не все источники настроены.');
   const snapshots = [];
+  const historyUpdates = [];
   const formats = new Map();
   const checkedAt = new Date().toISOString();
   for (const config of configs) {
@@ -114,7 +116,9 @@ export async function syncLaws(root = resolve(import.meta.dirname, '..'), reques
     const previousText = await readFile(path, 'utf8');
     formats.set(path, /\n\s+"/u.test(previousText) ? 2 : undefined);
     const previous = JSON.parse(previousText);
-    snapshots.push({ ...parseLaw(html, config, previous), checkedAt });
+    const next = { ...parseLaw(html, config, previous), checkedAt };
+    snapshots.push(next);
+    historyUpdates.push({ id: config.id, previous, next });
   }
   const nextMeta = metadata.map(meta => {
     const doc = snapshots.find(snapshot => snapshot.id === meta.id);
@@ -124,7 +128,8 @@ export async function syncLaws(root = resolve(import.meta.dirname, '..'), reques
   });
   // No file is written until all eight official messages have passed validation.
   const files = [...snapshots.map(doc => [resolve(root, `public/laws/${doc.id}.json`), doc]),
-    [resolve(root, 'lib/law-documents.json'), nextMeta], [resolve(root, 'public/laws/manifest.json'), { checkedAt, documents: nextMeta }]];
+    [resolve(root, 'lib/law-documents.json'), nextMeta], [resolve(root, 'public/laws/manifest.json'), { checkedAt, documents: nextMeta }],
+    ...await historyFiles(root, historyUpdates)];
   for (const [path, data] of files) await writeFile(path + '.tmp', JSON.stringify(data, null, formats.has(path) ? formats.get(path) : 2) + '\n');
   for (const [path] of files) await rename(path + '.tmp', path);
   console.log(JSON.stringify({ checkedAt, documents: snapshots.length, articles: nextMeta.reduce((n, meta) => n + meta.articleCount, 0) }));

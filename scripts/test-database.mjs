@@ -16,6 +16,7 @@ import { checkDashboard } from './test-dashboard.mjs';
 import { checkSearchHistory } from './test-search-history.mjs';
 import { checkLeadershipTools } from './test-leadership-tools.mjs';
 import { checkLawReferences } from './test-law-references.mjs';
+import { checkSupport } from './test-support.mjs';
 
 const root=resolve(import.meta.dirname,'..');
 const db=new PGlite();
@@ -196,5 +197,6 @@ try {
   await checkSearchHistory({db,asUser,rpc,denied,checks});
   await checkLeadershipTools({db,asUser,rpc,denied,checks});
   await checkLawReferences({db,asUser,denied,A,B,checks});
+  await checkSupport({db,asUser,denied,checks});
   console.log(JSON.stringify({passed:checks.length,checks,scope:'Actual PostgreSQL engine (PGlite), migrations, database roles and RPC; Auth JWT claims mocked locally'},null,2));
 } finally {await db.close();}

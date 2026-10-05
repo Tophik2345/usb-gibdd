@@ -26,6 +26,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:laws
       - run: pnpm test:law-identity
+      - run: pnpm test:history
       - name: Fetch and validate all eight official documents
         env:
           FORUM_COOKIE: ${{ secrets.FORUM_COOKIE }}
@@ -35,7 +36,7 @@ jobs:
         run: node scripts/sync-law-references.mjs
       - name: Save verified documents
         run: |
-          git add public/laws lib/law-documents.json
+          git add public/laws public/rule-history lib/law-documents.json
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

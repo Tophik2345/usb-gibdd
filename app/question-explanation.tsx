@@ -1,4 +1,6 @@
+import { splitExplanation } from '@/lib/question-reference';
+import CurrentNorm from './current-norm';
 export default function QuestionExplanation({text}:{text:string}){
- const match=text.match(/\nОткрыть статью: (#laws\?document=(?:charter|criminal|labour|procedure|police|traffic-police|administrative|traffic-rules)&article=article-\d+)$/);
- return <div className="explanation"><p>{match?text.slice(0,match.index):text}</p>{match&&<a href={match[1]} target="_blank" rel="noopener noreferrer" className="text-button">Открыть статью в «Законы РО» ↗</a>}</div>;
+ const parts=splitExplanation(text);
+ return <div className="explanation">{parts.text&&<p>{parts.text}</p>}{parts.reference&&<><a href={parts.reference.href} target="_blank" rel="noopener noreferrer" className="text-button">Открыть статью в «Законы РО» ↗</a><CurrentNorm href={parts.reference.href}/></>}</div>;
 }

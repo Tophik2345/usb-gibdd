@@ -6,6 +6,7 @@ import { appealKinds, appealStatuses, departmentApi, errorMessage, type Appeal, 
 import { formatSiteDate } from '@/lib/date-time';
 import { useDepartmentData } from './use-department-data';
 import { departmentLink, DepartmentLoading } from './department-section';
+import './site-improvements.css';
 
 const shortId = (id: string) => id.slice(0, 8).toUpperCase();
 function Status({ status }: { status: AppealStatus }) { return <span className={'appeal-status status-' + status}>{appealStatuses[status]}</span>; }
@@ -48,8 +49,11 @@ export default function AppealsSection({ canManage, appealId, initialScope }: { 
 
 function AppealDetails({ id, canManage, onUpdated, scope }: { id: string; canManage: boolean; onUpdated: () => void; scope: string }) {
   const { data, loading, error, refresh } = useDepartmentData<Appeal>({ op: 'appeal', id });
+  const [copyError,setCopyError]=useState('');
+  const copyLink=async()=>{setCopyError('');try{const link=new URL(window.location.href);link.hash=departmentLink('appeals','appeal',id)+'&scope=mine';await navigator.clipboard.writeText(link.href);toast.success('Ссылка на обращение скопирована');}catch{setCopyError('Не удалось скопировать ссылку. Скопируйте адрес страницы из браузера.');}};
   return <><div className="department-detail-tools"><a className="department-back" href={departmentLink('appeals') + '&scope=' + scope}><ArrowLeft size={17} />К обращениям</a><button className="button outline" onClick={refresh} disabled={loading}><RefreshCw size={16} />Обновить</button></div>
     {loading || error ? <DepartmentLoading error={error} refresh={refresh} /> : data && <div className="appeal-detail-grid"><article className="department-card appeal-detail"><div className="appeal-meta"><span>№ {shortId(data.id)} · {appealKinds[data.kind]}</span><Status status={data.status} /></div><h3>{data.subject}</h3><p className="portal-note">Заявитель: {data.authorLogin}<br />Подано: {formatSiteDate(data.createdAt)}</p><h4>Описание ситуации</h4><p className="department-preserve">{data.body}</p><h4>Материалы и доказательства</h4>{data.evidence.length ? <ol className="appeal-evidence">{data.evidence.map((url, index) => <li key={index}><a href={url} target="_blank" rel="noopener noreferrer">Материал {index + 1} · {new URL(url).hostname}<ExternalLink size={14} /></a></li>)}</ol> : <p className="portal-note">Ссылки не приложены.</p>}
+      <p className="helper">Регистрационный номер: {data.id}. Обновлено: {formatSiteDate(data.updatedAt)}.</p><ol className="appeal-tracking" aria-label="Этапы обращения">{(['new','in_review',data.status==='rejected'?'rejected':'resolved'] as const).map((step,index)=><li key={step} aria-current={data.status===step?'step':undefined}>{index+1}. {appealStatuses[step]}</li>)}</ol><button type="button" className="button outline" onClick={copyLink}>Скопировать ссылку на обращение</button>{copyError&&<p role="alert" className="inline-error">{copyError}</p>}<p className="helper">Сохраните ссылку, чтобы вернуться к статусу и ответу. Доступ к обращению проверяется при каждом открытии. Изменения статуса появляются в уведомлениях.</p>
       {data.response && <div className="appeal-response"><h4>Ответ руководства</h4><p className="department-preserve">{data.response}</p></div>}
       {canManage && <AppealReview key={data.id + ':' + data.version} appeal={data} onSaved={() => { refresh(); onUpdated(); }} />}
     </article><aside className="department-card appeal-history"><h3>История рассмотрения</h3><ol>{data.history.map(event => <li key={event.version}><Status status={event.status} /><p>{event.actorLogin}</p><time dateTime={event.createdAt}>{formatSiteDate(event.createdAt)}</time>{event.response && <p className="department-preserve">{event.response}</p>}</li>)}</ol></aside></div>}

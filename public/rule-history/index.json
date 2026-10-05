@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "startedAt": "2026-10-05T09:30:11.642Z",
+  "documents": [
+    {
+      "id": "charter",
+      "title": "Внутренний устав ГИБДД",
+      "sourceUrl": "https://forum.russia.online/threads/vnutrennii-ustav-gibdd.5291/",
+      "baselineHash": "3d1e81f508bfcbbb5bdd369c2a79a3780d934c284cb575a5c040eb6260daea61"
+    },
+    {
+      "id": "criminal",
+      "title": "Уголовный кодекс РО",
+      "sourceUrl": "https://forum.russia.online/threads/ugolovnyi-kodeks-ro.4805/",
+      "baselineHash": "b3504b853a9aa54e5f5743d0761a78943b329a38242840b59dee9f0a241b047f"
+    },
+    {
+      "id": "labour",
+      "title": "Трудовой кодекс РО",
+      "sourceUrl": "https://forum.russia.online/threads/trudovoi-kodeks-ro.4943/",
+      "baselineHash": "6ac923d4f80bb83b0039d6af09a19f5364c34d25f8e676da965148cedecf05e9"
+    },
+    {
+      "id": "procedure",
+      "title": "Процессуальный кодекс РО",
+      "sourceUrl": "https://forum.russia.online/threads/protsessual-nyi-kodeks-ro.4910/",
+      "baselineHash": "322f4057c6a7f38661e43b3a96e0270900cd875279374282bc0ffa852b31a55f"
+    },
+    {
+      "id": "police",
+      "title": "Федеральный закон «О полиции»",
+      "sourceUrl": "https://forum.russia.online/threads/federal-nyi-zakon-o-politsii.5257/",
+      "baselineHash": "fa248657821a10f9ae0d654896b68acc52190cda8f8887a4701a88ce8470f81a"
+    },
+    {
+      "id": "traffic-police",
+      "title": "Федеральный закон «О государственной инспекции безопасности дорожного движения»",
+      "sourceUrl": "https://forum.russia.online/threads/federal-nyi-zakon-o-gosudarstvennoi-inspektsii-bezopasnosti-dorozhnogo-dvizheniya.5250/",
+      "baselineHash": "a5b9ea953b773ea91ab3d2305affe41ae01ba6d1d4c76b357644ebc70099609a"
+    },
+    {
+      "id": "administrative",
+      "title": "Кодекс РО об административных правонарушениях",
+      "sourceUrl": "https://forum.russia.online/threads/kodeks-ro-ob-administrativnykh-pravonarusheniyakh.4930/",
+      "baselineHash": "c2a8cf49227916759ee17edb049362723a387d2695483b6f53bd206a7845505c"
+    },
+    {
+      "id": "traffic-rules",
+      "title": "Правила дорожного движения РО",
+      "sourceUrl": "https://forum.russia.online/threads/pravila-dorozhnogo-dvizheniya-ro.5269/",
+      "baselineHash": "0203b9295a9546109b6436b2aa4fbd3f98ce84189802216c9d017417d1b4da70"
+    },
+    {
+      "id": "state-organizations",
+      "title": "Правила государственных организаций",
+      "sourceUrl": "https://forum.russia.online/threads/pravila-gosudarstvennykh-organizatsii.11/",
+      "baselineHash": "d72adf5ac70e7569580439e945124b5790199284e6c101b1f987ae98f953f3e3"
+    }
+  ],
+  "revisions": []
+}

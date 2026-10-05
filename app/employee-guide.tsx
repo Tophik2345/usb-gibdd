@@ -1,9 +1,11 @@
 import { BookOpen, ClipboardCheck } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { newcomerCards, dutyCards } from '@/lib/employee-guides';
 import { roadCards, gameplayCards } from '@/lib/road-guides';
 import { useProjectRules } from '@/lib/project-rules';
 import SectionLinks from './section-links';
+import RuleHistoryPanel from './rule-history';
+import ReportError from './report-error';
 
 const newcomerTopics = [
   { label: 'Перед выходом на службу', card: 1 },
@@ -27,13 +29,14 @@ function openTopic(card: number | string) {
   });
 }
 
-export default function EmployeeGuide({ kind }: { kind: 'new-employees' | 'duties' }) {
+export default function EmployeeGuide({ kind, signedIn=false }: { kind: 'new-employees' | 'duties'; signedIn?:boolean }) {
   const newcomer = kind === 'new-employees';
   const cards = newcomer ? [...newcomerCards, ...roadCards] : dutyCards;
   const { rules, cards: projectRuleCards, error: ruleError, source } = useProjectRules();
   useEffect(() => {
     const open = () => {
       const topic = new URLSearchParams(window.location.hash.split('?')[1] || '').get('topic');
+      if(topic==='project-rules'){document.getElementById('newcomer-card-project-rules')?.scrollIntoView({block:'start',behavior:'instant'});return;}
       if (!topic || !/^(?:newcomer-card|duties-card|guide-project|guide-gameplay)-\d+$/.test(topic)) return;
       const target = document.getElementById(topic); target?.focus({ preventScroll: true }); target?.scrollIntoView({ block: 'start', behavior: 'instant' });
     };
@@ -102,7 +105,8 @@ export default function EmployeeGuide({ kind }: { kind: 'new-employees' | 'dutie
         <p className="guide-source-note">Проверка обновлений на официальном форуме — каждые 6 часов. Последняя успешная проверка: {new Date(source.checkedAt).toLocaleString('ru-RU', { timeZone: 'Europe/Kiev' })}. <a href={source.sourceUrl} target="_blank" rel="noopener noreferrer">Открыть источник</a>.</p>
         {ruleError && <p className="guide-source-note" role="status">{ruleError}</p>}
         <div className="employee-guide-grid">{projectRuleCards.map((card,index)=><article className="employee-guide-card" key={card.title} id={`guide-project-${index + 1}`} tabIndex={-1}><h3>{card.title}</h3><ul>{card.items.map(item=><li key={item}>{item}</li>)}</ul><p className="guide-source-note">{card.reference}</p></article>)}</div>
-        {rules && <details className="law-edition-notes"><summary>Все правила госорганизаций · {rules.points.length} пунктов</summary><div className="law-article-body">{rules.lines.map((line, index) => <p key={index}>{line}</p>)}</div></details>}
+        {rules && <details className="law-edition-notes"><summary>Все правила госорганизаций · {rules.points.length} пунктов</summary><div className="law-article-body">{rules.lines.map((line, index) => <p key={index}>{line}</p>)}<div className="norm-picker"><p>Нашли неточность? Выберите пункт для сообщения.</p><ProjectRuleReport rules={rules} signedIn={signedIn}/></div></div></details>}
+        <RuleHistoryPanel document="state-organizations"/>
       </section>
       {newcomer&&<section className="guide-supplement" id="newcomer-card-gameplay" tabIndex={-1} aria-labelledby="gameplay-title">
         <h2 id="gameplay-title">Практика в игре</h2>
@@ -124,4 +128,8 @@ export default function EmployeeGuide({ kind }: { kind: 'new-employees' | 'dutie
       </div>
     </section>
   );
+}
+function ProjectRuleReport({rules,signedIn}:{rules:import('@/lib/project-rules').ProjectRules;signedIn:boolean}){
+  const [number,setNumber]=useState(rules.points[0]?.number||'');
+  return <><label className="field">Пункт правил<select value={number} onChange={event=>setNumber(event.target.value)}>{rules.points.map(point=><option value={point.number} key={point.number}>Пункт {point.number}</option>)}</select></label>{number&&<ReportError key={number} signedIn={signedIn} target={{kind:'law',document:'state-organizations',article:'point-'+number,label:'Правила госорганизаций · пункт '+number}}/>}</>;
 }

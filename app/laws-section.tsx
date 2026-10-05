@@ -6,6 +6,8 @@ import { formatSiteDate } from '@/lib/date-time';
 import { portalApi, type Bookmark } from '@/lib/portal-api';
 import { matchesLaw, lawExcerpt, normalizeLawText, type LawText, type LawEntry } from '@/lib/law-search';
 import SectionLinks from './section-links';
+import RuleHistoryPanel from './rule-history';
+import ReportError from './report-error';
 
 import { lawCache as cache, loadDocument } from '@/lib/law-loader';
 const articleWord=(n:number)=>n%100>=11&&n%100<=14?'статей':n%10===1?'статья':n%10>=2&&n%10<=4?'статьи':'статей';
@@ -32,6 +34,8 @@ export default function LawsSection({signedIn=false}:{signedIn?:boolean}){
   const [bookmarkError,setBookmarkError]=useState('');const [bookmarkRetry,setBookmarkRetry]=useState(0);
   const [saving,setSaving]=useState('');const [notice,setNotice]=useState('');
   const [limit,setLimit]=useState(24);
+  const [view,setView]=useState(()=>new URLSearchParams(window.location.hash.split('?')[1]||'').get('view')==='history'?'history':'text');
+  useEffect(()=>{const update=()=>setView(new URLSearchParams(window.location.hash.split('?')[1]||'').get('view')==='history'?'history':'text');window.addEventListener('hashchange',update);return()=>window.removeEventListener('hashchange',update);},[]);
   const needle=normalizeLawText(query);
   const resultMode=scope==='favorites'||!!needle;
   const needsAll=scope==='favorites'||(scope==='all'&&!!needle);
@@ -81,6 +85,8 @@ export default function LawsSection({signedIn=false}:{signedIn?:boolean}){
     <SectionLinks section="laws"/><h1 id="laws-title">Законы РО</h1>
     <p className="information-description">Полные тексты законов и ПДД сервера «Кутузовский» игрового проекта «Россия Онлайн».</p>
     <div className="laws-overview"><span><strong>{documents.length}</strong> документов</span><span><strong>{articleCount}</strong> {articleWord(articleCount)}</span><span><strong>{pointCount}</strong> {pointWord(pointCount)} ПДД</span></div>
+    <div className="review-filters" role="group" aria-label="Представление библиотеки"><button type="button" className="button outline" aria-pressed={view==='text'} onClick={()=>{setView('text');window.location.hash=`laws?document=${selected}`;}}>Тексты документов</button><button type="button" className="button outline" aria-pressed={view==='history'} onClick={()=>{setView('history');window.location.hash='laws?view=history';}}>История изменений</button></div>
+    {view==='history'?<RuleHistoryPanel/>:<>
     <div className="law-search-panel">
       <div className="law-search-scopes" role="group" aria-label="Область поиска">
         <button type="button" aria-pressed={scope==='all'} onClick={()=>setScope('all')}>Все документы</button>
@@ -117,10 +123,11 @@ export default function LawsSection({signedIn=false}:{signedIn?:boolean}){
       {error?<div className="error-banner" role="alert"><span>{error}</span><button type="button" className="text-button" onClick={()=>setRetry(n=>n+1)}>Повторить</button></div>:!content?<p className="law-loading" role="status"><Loader2 className="spin" size={20}/>Загружаем статьи…</p>:<div className="law-reading-layout">
         <aside className="law-toc"><h3>Оглавление</h3><nav aria-label="Главы выбранного документа">{chapters.map(c=><button type="button" key={c.id} onClick={()=>{setQuery('');setExpanded(true);setJump(c.id);}}>{c.title}</button>)}</nav></aside>
         <div className="law-text" aria-label="Текст выбранного документа">{content.entries.map(entry=>entry.kind==='article'?<details key={`${selected}-${entry.id}-${expanded}`} id={`law-${selected}-${entry.id}`} className="law-article" open={expanded}>
-          <summary><span>{entry.title}</span><ChevronDown size={19}/></summary><div className="law-article-tools">{bookmarkButton(selected,entry)}</div>
+          <summary><span>{entry.title}</span><ChevronDown size={19}/></summary><div className="law-article-tools">{bookmarkButton(selected,entry)}<ReportError signedIn={signedIn} target={{kind:'law',document:selected,article:entry.id,label:meta.shortTitle+' · '+entry.title}}/></div>
           <div className="law-article-body">{entry.paragraphs.map((text,i)=><p key={i}>{text}</p>)}</div>
         </details>:<div key={entry.id} id={`law-${selected}-${entry.id}`} className={entry.kind==='section'?'law-chapter':'law-introduction'}>{entry.title&&<h3>{entry.title}</h3>}{entry.paragraphs.map((text,i)=><p key={i}>{text}</p>)}</div>)}</div>
       </div>}
+    </>}
     </>}
   </section>;
 }

@@ -43,6 +43,8 @@ jobs:
         run: pnpm test:forum-access
       - name: Verify law import, freshness and bookmark synchronization identities
         run: pnpm test:laws && pnpm test:law-identity
+      - name: Verify rule history and current article links
+        run: pnpm test:history
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5

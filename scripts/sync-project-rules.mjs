@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFile, writeFile, mkdir, rename } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
+import { historyFiles } from './rule-history.mjs';
 
 export const sourceUrl = 'https://forum.russia.online/threads/pravila-gosudarstvennykh-organizatsii.11/';
 const sourcePost = 'post-11';
@@ -78,10 +79,12 @@ export async function syncRules(root = resolve(import.meta.dirname, '..')) {
   checkChange(previous, snapshot);
   const cards = ruleCards(snapshot);
   await mkdir(resolve(root, 'public/rules'), { recursive: true });
-  for (const [file, data] of [[path, snapshot], [resolve(root, 'lib/project-rule-cards.json'), cards]]) {
+  const files = [[path, snapshot], [resolve(root, 'lib/project-rule-cards.json'), cards],
+    ...await historyFiles(root, [{ id: 'state-organizations', previous: previous || snapshot, next: snapshot }])];
+  for (const [file, data] of files) {
     await writeFile(file + '.tmp', JSON.stringify(data, null, 2) + '\n');
-    await rename(file + '.tmp', file);
   }
+  for (const [file] of files) await rename(file + '.tmp', file);
   console.log(JSON.stringify({ sourceUrl, points: snapshot.points.length, checkedAt: snapshot.checkedAt,
     contentChanged: previous?.contentHash !== snapshot.contentHash }));
 }

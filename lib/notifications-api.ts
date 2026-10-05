@@ -1,7 +1,7 @@
 import { accountRpc } from './account-session';
 import { WorkspaceError } from './workspace-api';
 
-export type NotificationKind = 'assignment' | 'deadline' | 'overdue' | 'appeal' | 'clearance';
+export type NotificationKind = 'assignment' | 'deadline' | 'overdue' | 'appeal' | 'clearance' | 'rules';
 export type PersonalNotification = {
   id: string; kind: NotificationKind; title: string; summary: string; targetId: string | null; createdAt: string; read: boolean;
 };

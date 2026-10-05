@@ -1,0 +1,13 @@
+import { useState } from 'react';
+import { Flag, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { supportApi, type FeedbackTarget } from '@/lib/support-api';
+import './site-improvements.css';
+export default function ReportError({ target, signedIn = true }: { target: FeedbackTarget; signedIn?: boolean }) {
+  const [open, setOpen] = useState(false), [id, setId] = useState(''), [description, setDescription] = useState(''), [busy, setBusy] = useState(false), [error, setError] = useState(''), [sent, setSent] = useState(false);
+  const submit = async (event: React.FormEvent) => { event.preventDefault(); if (busy) return; setBusy(true); setError(''); try { await supportApi({ action: 'create', id, ...target, description }); setSent(true); } catch (cause) { setError(cause instanceof Error ? cause.message : 'Не удалось отправить сообщение.'); } finally { setBusy(false); } };
+  return <><button className="text-button feedback-button" type="button" onClick={() => { setId(crypto.randomUUID()); setDescription(''); setError(''); setSent(false); setOpen(true); }}><Flag size={14}/>Сообщить об ошибке</button>
+    <Dialog open={open} onOpenChange={value => { if (!busy) setOpen(value); }}><DialogContent onInteractOutside={event => { if (busy) event.preventDefault(); }} onEscapeKeyDown={event => { if (busy) event.preventDefault(); }}><DialogHeader><DialogTitle>{sent ? 'Сообщение отправлено' : 'Сообщить об ошибке'}</DialogTitle><DialogDescription>{sent ? 'Руководство получит описание и ссылку на материал.' : 'Укажите неточность и предложите исправление, если оно известно.'}</DialogDescription></DialogHeader>
+      {!signedIn ? <p>Для отправки сообщения <a href="#account" onClick={() => setOpen(false)}>войдите в аккаунт</a>.</p> : sent ? <><p>№ {id.slice(0, 8).toUpperCase()}</p><a className="button outline" href="#department?tab=feedback" target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}>Следить за рассмотрением ↗</a></> : <form className="portal-form" onSubmit={submit}><p className="feedback-context">{target.label}</p><label className="field">Что нужно исправить?<textarea required minLength={10} maxLength={4000} rows={5} value={description} onChange={event => setDescription(event.target.value)}/></label><p className="helper">Сообщение видно вам, владельцу сайта и заместителю.</p>{error && <p className="inline-error" role="alert">{error}</p>}<button className="button primary" disabled={busy}>{busy && <Loader2 size={17} className="spin"/>}Отправить сообщение</button></form>}
+    </DialogContent></Dialog></>;
+}

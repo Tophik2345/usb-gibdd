@@ -24,7 +24,8 @@
     "test:forum-access": "node scripts/test-forum-access.mjs",
     "sync:laws": "node scripts/sync-laws.mjs",
     "test:laws": "node scripts/test-laws-sync.mjs && node scripts/test-law-loader.mjs",
-    "test:law-identity": "node scripts/test-law-identity.mjs"
+    "test:law-identity": "node scripts/test-law-identity.mjs",
+    "test:history": "node scripts/test-rule-history.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",
