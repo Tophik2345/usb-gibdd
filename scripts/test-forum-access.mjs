@@ -13,7 +13,7 @@ await test('session is sent only to the two official HTTPS targets and redirects
     assert.equal(options.redirect, 'error'); assert(options.signal);
     calls.push(url);
     return url.includes('/categories/')
-      ? response('<div class="p-body-pageContent"><div class="node">Государственные организации</div></div>')
+      ? response('<title>Государственные организации | Россия Онлайн Форум</title><div class="p-body-pageContent"><div class="node">Государственные организации</div></div>')
       : response('<title>Процессуальный кодекс РО | Россия Онлайн Форум</title><article class="message"><div class="message-body"><div class="bbWrapper">' + 'Официальный текст нормы. '.repeat(80) + '</div></div></article>');
   });
   assert.equal(calls.length, 2);
@@ -21,6 +21,20 @@ await test('session is sent only to the two official HTTPS targets and redirects
   assert(!JSON.stringify(result).includes(cookie));
   assert(!JSON.stringify(result).includes('local-test-user'));
   assert(!JSON.stringify(result).includes('Официальный текст нормы'));
+});
+
+await test('a login widget does not hide readable source content and the browser user agent is retained', async () => {
+  const agent = 'Mozilla/5.0 browser-session-test';
+  const result = await checkForumAccess(cookie, async (url, options) => {
+    assert.equal(options.headers['User-Agent'], agent);
+    const form = '<form action="/login/login">Войти</form>';
+    return url.includes('/categories/')
+      ? response('<title>Государственные организации | Россия Онлайн Форум</title><div class="p-body-pageContent"><div class="node">Раздел</div></div>' + form)
+      : response('<title>Процессуальный кодекс РО | Россия Онлайн Форум</title><article class="message"><div class="message-body"><div class="bbWrapper">' + 'Официальный текст нормы. '.repeat(80) + '</div></div></article>' + form);
+  }, agent);
+  assert.equal(result.authorized, true);
+  assert(result.pages.every(page => page.diagnostics.loginFormPresent && page.diagnostics.expectedContentPresent));
+  assert(!JSON.stringify(result).includes(cookie));
 });
 
 await test('missing or malformed session values cannot send any requests', async () => {

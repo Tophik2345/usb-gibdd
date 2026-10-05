@@ -26,14 +26,20 @@ export async function checkForumAccess(cookie, request = fetch, userAgent = 'Moz
       const html = await response.text();
       if (html.length > 2000000) { pages.push({ ...page, reason: 'Ответ источника слишком большой.' }); continue; }
       const $ = load(html);
-      if (/^Вход\s*\|/u.test($('title').first().text()) || $('form[action*="login/login"]').length) {
-        pages.push({ ...page, reason: 'Сессия не принята: форум показывает форму входа.' }); continue;
-      }
       const body = $('article.message .message-body .bbWrapper').first();
+      const title = $('title').first().text();
+      const loginPage = /^Вход\s*\|/iu.test(title);
+      const loginFormPresent = $('form[action*="login/login"]').length > 0;
       const valid = target.kind === 'document'
-        ? /процессуальный\s+кодекс/iu.test($('title').first().text()) && body.text().trim().length > 1000
-        : $('.p-body-pageContent .node').length > 0;
-      pages.push({ ...page, accessible: valid, reason: valid ? 'Доступ подтверждён.' : 'Ожидаемый раздел или документ не найден.' });
+        ? /процессуальный\s+кодекс/iu.test(title) && body.text().trim().length > 1000
+        : /государственные\s+организации/iu.test(title) && $('.p-body-pageContent .node').length > 0;
+      // A login widget may coexist with a readable page. Report only booleans,
+      // never titles, account details, request headers or response contents.
+      const diagnostics = { loginPage, loginFormPresent, expectedContentPresent: valid };
+      if (loginPage || (!valid && loginFormPresent)) {
+        pages.push({ ...page, diagnostics, reason: 'Сессия не принята: форум показывает форму входа.' }); continue;
+      }
+      pages.push({ ...page, diagnostics, accessible: valid, reason: valid ? 'Доступ подтверждён.' : 'Ожидаемый раздел или документ не найден.' });
     } catch {
       // Never expose request headers, transport error details or page content.
       pages.push({ ...target, accessible: false, reason: 'Запрос не выполнен; проверьте сессию и доступность форума.' });

@@ -1,6 +1,11 @@
 name: Check authorized forum access
 on:
   workflow_dispatch:
+    inputs:
+      user_agent:
+        description: 'Optional User-Agent of the browser session (not a credential)'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -20,7 +25,7 @@ jobs:
       - name: Verify access without printing credentials or page contents
         env:
           FORUM_COOKIE: ${{ secrets.FORUM_COOKIE }}
-          FORUM_USER_AGENT: ${{ secrets.FORUM_USER_AGENT }}
+          FORUM_USER_AGENT: ${{ inputs.user_agent || secrets.FORUM_USER_AGENT }}
         run: node scripts/check-forum-access.mjs
       - name: Save access status
         if: always()
