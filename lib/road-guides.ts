@@ -1,4 +1,5 @@
 import type { GuideCard } from './employee-guides';
+import officialRules from './project-rule-cards.json';
 
 export const roadCards: GuideCard[] = [
   {
@@ -46,30 +47,8 @@ export const roadCards: GuideCard[] = [
   },
 ];
 
-// Official forum reviewed on 30.09.2026:
-// https://forum.russia.online/threads/pravila-gosudarstvennykh-organizatsii.11/
-export const projectRuleCards = [
-  {
-    title: 'Запись и запрос администрации',
-    items: ['В случаях пункта 7.4 записывай основания и весь процесс. Храни запись 48 часов с момента инцидента. Нужны непрерывное видео без обработки, качество от 480p и оригинальный звук. По запросу администрации предоставь запись не позднее 24 часов.'],
-    reference: 'Правила госорганизаций, пункт 7.4. Более длительное хранение по ПК РО описано в памятке новичка.',
-  },
-  {
-    title: 'Разъяснение прав',
-    items: ['При задержании чётко произноси права и нарушенные статьи в голосовой чат. Если игрок сообщает, что не слышит или играет без звука, используй текстовый чат.'],
-    reference: 'Правила госорганизаций, пункт 1.8.',
-  },
-  {
-    title: 'Идентификация сотрудника',
-    items: ['У сотрудников МВД и ГИБДД видимый идентификатор соответствует статику; предусмотрены исключения. Фактическое подразделение должно совпадать с указанным в планшете.'],
-    reference: 'Правила госорганизаций, пункты 1.21–1.21.2.',
-  },
-  {
-    title: 'Пределы компетенции',
-    items: ['При задержании по признакам преступления ГИБДД передаёт задержанного компетентным правоохранительным органам. Внутренние инструкции требуют согласования Правительством и/или куратором фракции.'],
-    reference: 'Правила госорганизаций, пункты 10.5 и 2.7.',
-  },
-];
+// Generated from the official post by scripts/sync-project-rules.mjs.
+export const projectRuleCards = officialRules.cards;
 
 // Official wiki, general GIBDD mechanics; article dated 10.09.2026:
 // https://wiki.russia.online/ru/posts/gibdd

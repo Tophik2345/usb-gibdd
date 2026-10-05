@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Loader2, Search } from 'lucide-react';
 import documents from '@/lib/law-documents.json';
 import { loadDocument } from '@/lib/law-loader';
+import { useProjectRules } from '@/lib/project-rules';
 import { searchApi, searchGuides, searchLaws, type SearchItem, type SearchPage } from '@/lib/site-search';
 import './personal-tools.css';
 
@@ -34,6 +35,7 @@ function RemoteResults({ kind, query, onTest }: { kind: 'test' | 'material'; que
   </section>;
 }
 export default function GlobalSearch({ signedIn, onTest }: { signedIn: boolean; onTest: (id: string) => Promise<void> }) {
+  const { cards: projectCards } = useProjectRules();
   const [query, setQuery] = useState(readQuery), [input, setInput] = useState(readQuery), [filter, setFilter] = useState('all');
   const locationQuery = useRef(query);
   const [laws, setLaws] = useState<SearchItem[]>([]), [loading, setLoading] = useState(false), [error, setError] = useState(''), [revision, setRevision] = useState(0), [limit, setLimit] = useState(24);
@@ -47,7 +49,7 @@ export default function GlobalSearch({ signedIn, onTest }: { signedIn: boolean; 
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [query, valid, revision]);
-  const guides = valid ? searchGuides(query) : [];
+  const guides = valid ? searchGuides(query, projectCards) : [];
   return <section className="personal-tool" aria-labelledby="search-title"><header className="page-heading"><div><div className="eyebrow">БЫСТРЫЙ ПЕРЕХОД</div><h1 id="search-title">Поиск по сайту</h1><p>Найди тест, статью закона или учебную памятку.</p></div></header>
     <form className="site-search-form" onSubmit={event => { event.preventDefault(); const q = input.trim().replace(/\s+/g, ' '); locationQuery.current = q; setQuery(q); setInput(q); window.location.hash = 'search?q=' + encodeURIComponent(q); }}><label className="field">Что найти<input type="search" required minLength={2} maxLength={100} value={input} onChange={event => setInput(event.target.value)} placeholder="Например: задержание или статья 12.1"/></label><button className="button primary" type="submit"><Search size={18} aria-hidden="true"/>Найти</button></form>
     {!signedIn && <p className="helper"><a href="#account">Войдите</a>, чтобы искать тесты и материалы подготовки.</p>}

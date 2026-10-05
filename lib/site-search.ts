@@ -25,11 +25,11 @@ export function searchLaws(laws: LawText[], query: string): SearchItem[] {
     .map(entry => ({ id: `law:${doc.id}:${entry.id}`, kind: 'law' as const, title: entry.title, source: documents.find(d => d.id === doc.id)?.shortTitle || doc.title,
       summary: lawExcerpt(entry, query), href: `#laws?document=${encodeURIComponent(doc.id)}&article=${encodeURIComponent(entry.id)}` })));
 }
-export function searchGuides(query: string): SearchItem[] {
+export function searchGuides(query: string, currentProjectCards = projectRuleCards): SearchItem[] {
   const groups = [
     { cards: [...newcomerCards,...roadCards], page: 'new-employees', prefix: 'newcomer-card', source: 'Памятка нового сотрудника' },
     { cards: dutyCards, page: 'duties', prefix: 'duties-card', source: 'Обязанности УСБ' },
-    { cards: projectRuleCards, page: 'new-employees', prefix: 'guide-project', source: 'Правила проекта' },
+    { cards: currentProjectCards, page: 'new-employees', prefix: 'guide-project', source: 'Правила проекта' },
     { cards: gameplayCards, page: 'new-employees', prefix: 'guide-gameplay', source: 'Практика в игре' },
   ];
   return groups.flatMap(group => group.cards.flatMap((card, index) => {

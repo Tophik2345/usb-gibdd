@@ -1,7 +1,8 @@
 import { BookOpen, ClipboardCheck } from 'lucide-react';
 import { useEffect } from 'react';
 import { newcomerCards, dutyCards } from '@/lib/employee-guides';
-import { roadCards, projectRuleCards, gameplayCards } from '@/lib/road-guides';
+import { roadCards, gameplayCards } from '@/lib/road-guides';
+import { useProjectRules } from '@/lib/project-rules';
 import SectionLinks from './section-links';
 
 const newcomerTopics = [
@@ -29,6 +30,7 @@ function openTopic(card: number | string) {
 export default function EmployeeGuide({ kind }: { kind: 'new-employees' | 'duties' }) {
   const newcomer = kind === 'new-employees';
   const cards = newcomer ? [...newcomerCards, ...roadCards] : dutyCards;
+  const { rules, cards: projectRuleCards, error: ruleError, source } = useProjectRules();
   useEffect(() => {
     const open = () => {
       const topic = new URLSearchParams(window.location.hash.split('?')[1] || '').get('topic');
@@ -97,8 +99,10 @@ export default function EmployeeGuide({ kind }: { kind: 'new-employees' | 'dutie
 
       <section className="guide-supplement" id="newcomer-card-project-rules" tabIndex={-1} aria-labelledby="project-rules-title">
         <h2 id="project-rules-title">Правила проекта для госслужащих</h2>
-        <p className="guide-source-note">Краткая памятка по опубликованным правилам администрации. При разборе ситуации учитывай полный пункт и его исключения.</p>
+        <p className="guide-source-note">Проверка обновлений на официальном форуме — каждые 6 часов. Последняя успешная проверка: {new Date(source.checkedAt).toLocaleString('ru-RU', { timeZone: 'Europe/Kiev' })}. <a href={source.sourceUrl} target="_blank" rel="noopener noreferrer">Открыть источник</a>.</p>
+        {ruleError && <p className="guide-source-note" role="status">{ruleError}</p>}
         <div className="employee-guide-grid">{projectRuleCards.map((card,index)=><article className="employee-guide-card" key={card.title} id={`guide-project-${index + 1}`} tabIndex={-1}><h3>{card.title}</h3><ul>{card.items.map(item=><li key={item}>{item}</li>)}</ul><p className="guide-source-note">{card.reference}</p></article>)}</div>
+        {rules && <details className="law-edition-notes"><summary>Все правила госорганизаций · {rules.points.length} пунктов</summary><div className="law-article-body">{rules.lines.map((line, index) => <p key={index}>{line}</p>)}</div></details>}
       </section>
       {newcomer&&<section className="guide-supplement" id="newcomer-card-gameplay" tabIndex={-1} aria-labelledby="gameplay-title">
         <h2 id="gameplay-title">Практика в игре</h2>

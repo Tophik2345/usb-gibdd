@@ -37,6 +37,8 @@ jobs:
         run: pnpm test:drafts
       - name: Verify database permissions and scoring
         run: pnpm test:db
+      - name: Verify official rules and preservation of the previous edition
+        run: pnpm test:rules
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5

@@ -1,0 +1,42 @@
+name: Update official rules
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: official-rules-sync
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install package manager
+        run: npm install --global pnpm@11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:rules
+      - name: Fetch the complete official rules
+        run: pnpm sync:rules
+      - name: Save the verified snapshot
+        run: |
+          git add public/rules/state-organizations.json lib/project-rule-cards.json
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Update official state organization rules'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Publish updated rules
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main
