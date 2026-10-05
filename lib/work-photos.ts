@@ -6,7 +6,7 @@ type WorkPhoto = {
   height: number;
 };
 
-// Add only inspected, distinct Russia Online images without promotional text or HUD.
+// Add only inspected, distinct Russia Online images; preserve user-selected originals.
 // Keep each original's provenance and checksum in public/gallery/sources.json.
 export const workPhotos: WorkPhoto[] = [
   {
@@ -15,5 +15,12 @@ export const workPhotos: WorkPhoto[] = [
     alt: 'Два сотрудника ДПС разговаривают с водителем рядом с синим автомобилем и патрульной машиной в «России Онлайн».',
     width: 1810,
     height: 1018,
+  },
+  {
+    file: 'gibdd-classroom.jpg',
+    title: 'Подготовка сотрудников ДПС',
+    alt: 'Сотрудник ДПС в учебном классе со стендами дорожных знаков в «России Онлайн».',
+    width: 800,
+    height: 800,
   },
 ];

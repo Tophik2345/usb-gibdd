@@ -10,5 +10,31 @@
     "modified": false,
     "width": 1810,
     "height": 1018
+  },
+  {
+    "file": "gibdd-classroom.jpg",
+    "title": "Подготовка сотрудников ДПС",
+    "sourcePage": "https://t.me/russiaonline/612?single",
+    "sourceImage": "https://cdn4.telesco.pe/file/NfBQCY2Y6izrbQHISrXDNbDwZU2zxksET3JOUhV_tc1S6GDkoG5x2gZlkigqevjZWtt5ZFSCVFoCtIQgJomohGSxebfmF-JbOz7FPLiFpgpVYVMjHqtIVxIKrR2QYONpZLERJFAUPYSl6csnx9_5KyVqgSIJbmWKGpuS2ZAFrQ5ga50lnHIgGQCxIS6zYzMRP2QPdIY3zy26RtRw1GrD3HtdaHobJhs1brYS8HATqypgcOw3iJsohc3Bmosqme-sO7H_oweOpVnyIMLhV-jAHhV_6YaAOzjmRfhHAX59y4g6j2jZK3KmvzpNG1_yRrPDZayCZm5LgOtH2f3AgH2i-g.jpg",
+    "author": "Россия Онлайн",
+    "retrievedAt": "2026-10-05",
+    "sha256": "2059bfa448cb2e5971819c371191b6acbb305bd7f623cc3e28c530c6af3b54ae",
+    "modified": false,
+    "width": 800,
+    "height": 800
+  },
+  {
+    "file": "gibdd-character.webp",
+    "repositoryPath": "app/assets/gibdd-character.webp",
+    "placement": "home-hero",
+    "title": "Персонаж ГИБДД",
+    "sourcePage": "https://majestic-rp.ru/russia-online",
+    "sourceImage": "https://majestic-rp.ru/images/russia-online/choose-path/police.webp",
+    "author": "Majestic / Россия Онлайн",
+    "retrievedAt": "2026-10-05",
+    "sha256": "362c63d6f7aad68817d23b65956d999217bd5b78e439c96ba6263d628d1324a2",
+    "modified": false,
+    "width": 568,
+    "height": 794
   }
 ]
