@@ -15,7 +15,12 @@ await test('only the signed main-branch law workflow identity can update bookmar
   assert.equal(identity.repository, 'Tophik2345/usb-gibdd'); assert.equal(identity.sha, claims.sha);
 });
 await test('forks, pull requests, other workflows, wrong audiences and expired identities are denied', async () => {
-  for (const change of [{ repository: 'other/usb-gibdd' }, { ref: 'refs/pull/1/merge' }, { sub: 'repo:Tophik2345/usb-gibdd:pull_request' }, { workflow_ref: 'Tophik2345/usb-gibdd/.github/workflows/pages.yml@refs/heads/main' }, { aud: 'other' }, { iss: 'https://other.test' }, { exp: now - 1 }, { iat: now + 120 }, { nbf: now + 120 }]) await assert.rejects(verifyGitHubIdentity(await sign({ ...claims, ...change }), request, now));
+  for (const change of [{ repository: 'other/usb-gibdd' }, { ref: 'refs/pull/1/merge' }, { ref: 'refs/pull/1/merge', sub: 'repo:Tophik2345/usb-gibdd:pull_request' }, { sub: '' }, { workflow_ref: 'Tophik2345/usb-gibdd/.github/workflows/pages.yml@refs/heads/main' }, { aud: 'other' }, { iss: 'https://other.test' }, { exp: now - 1 }, { iat: now + 120 }, { nbf: now + 120 }]) await assert.rejects(verifyGitHubIdentity(await sign({ ...claims, ...change }), request, now));
+});
+await test('custom subject templates still require the signed repository, exact main ref and exact law workflow', async () => {
+  const custom = { ...claims, sub: 'repository_id:123:workflow_ref:custom-subject-template' };
+  assert.equal((await verifyGitHubIdentity(await sign(custom), request, now)).repository, claims.repository);
+  await assert.rejects(verifyGitHubIdentity(await sign({ ...custom, ref: 'refs/heads/untrusted' }), request, now));
 });
 await test('a tampered signature, unsigned JWT and unknown signing key cannot authenticate', async () => {
   const token = await sign(claims), parts = token.split('.');

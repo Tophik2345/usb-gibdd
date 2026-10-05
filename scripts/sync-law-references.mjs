@@ -20,7 +20,7 @@ try {
   const header = JSON.parse(Buffer.from(value.split('.')[0], 'base64url').toString('utf8'));
   console.log(JSON.stringify({ identityChecks: {
     repository: claims.repository === 'Tophik2345/usb-gibdd', ref: claims.ref === 'refs/heads/main',
-    subject: claims.sub === 'repo:Tophik2345/usb-gibdd:ref:refs/heads/main',
+    subjectPresent: typeof claims.sub === 'string' && claims.sub.length > 0,
     workflow: claims.workflow_ref === 'Tophik2345/usb-gibdd/.github/workflows/laws-sync.yml@refs/heads/main',
     issuer: claims.iss === 'https://token.actions.githubusercontent.com', audience: claims.aud === 'usb-gibdd-law-sync',
     rsaSignature: header.alg === 'RS256', unexpired: claims.exp > Date.now() / 1000,

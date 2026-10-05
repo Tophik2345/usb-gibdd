@@ -12,7 +12,7 @@ export async function verifyGitHubIdentity(token, request = fetch, now = Math.fl
   const claims = JSON.parse(new TextDecoder().decode(decode(parts[1])));
   if (header.alg !== 'RS256' || typeof header.kid !== 'string' || claims.iss !== issuer || claims.aud !== audience ||
       claims.repository !== repository || claims.ref !== 'refs/heads/main' ||
-      claims.sub !== `repo:${repository}:ref:refs/heads/main` || claims.workflow_ref !== workflow ||
+      typeof claims.sub !== 'string' || !claims.sub.length || claims.sub.length > 2000 || claims.workflow_ref !== workflow ||
       !Number.isFinite(claims.exp) || claims.exp <= now || claims.exp > now + 3600 ||
       !Number.isFinite(claims.iat) || claims.iat > now + 60 || claims.iat < now - 3600 ||
       (claims.nbf !== undefined && (!Number.isFinite(claims.nbf) || claims.nbf > now + 60))) throw new Error('Invalid identity.');
