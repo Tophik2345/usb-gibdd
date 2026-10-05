@@ -64,7 +64,7 @@ function assertCurrent(account: AccountScope) {
   if (account.signal.aborted || account !== scope) throw new AccountChangedError();
 }
 
-export async function accountRpc(name: string, payload: unknown, requireSession = false) {
+async function accountOperation<T>(operation: (client: ReturnType<typeof supabase>, account: AccountScope) => PromiseLike<T>, requireSession: boolean) {
   const client = trackAccount();
   const initiatingAccount = initialized ? scope : null;
   await ready;
@@ -79,7 +79,16 @@ export async function accountRpc(name: string, payload: unknown, requireSession 
     throw new AccountChangedError();
   }
   if (requireSession && (error || !session)) throw new SessionRequiredError();
-  const result = await client.rpc(name, { payload }).abortSignal(account.signal);
+  const result = await operation(client, account);
   assertCurrent(account);
   return result;
+}
+
+export function accountRpc(name: string, payload: unknown, requireSession = false) {
+  return accountOperation((client, account) => client.rpc(name, { payload }).abortSignal(account.signal), requireSession);
+}
+
+/** Storage requests retain the same account boundary as database requests. */
+export function accountStorage<T>(operation: (client: ReturnType<typeof supabase>) => PromiseLike<T>, requireSession = true) {
+  return accountOperation(operation, requireSession);
 }

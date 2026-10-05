@@ -140,3 +140,11 @@ await test('authenticated workspace rejects a guest, while public portal remains
   f.calls[0].pending.resolve({ data: { announcements: [] }, error: null });
   assert.equal((await pending).data.announcements.length, 0);
 });
+
+await test('storage responses cannot cross an account switch and same-account refresh preserves them', async () => {
+  const f=await fixture();const late=deferred();
+  const old=f.accountStorage(()=>late.promise);await tick();f.change('B');late.resolve({url:'private-A'});
+  await assert.rejects(old,changed);
+  const next=deferred();const current=f.accountStorage(()=>next.promise);await tick();f.change('B','TOKEN_REFRESHED');
+  next.resolve({url:'private-B'});assert.equal((await current).url,'private-B');
+});

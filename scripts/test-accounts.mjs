@@ -6,7 +6,7 @@ export async function checkAccounts({db,asUser,rpc,denied,A,B,C,base,checks}) {
   await db.exec('reset role');
   await db.query("insert into auth.users(id,email,raw_user_meta_data) values ($1,'deletable@example.test','{\"login\":\"Удаляемый сотрудник\"}'),($2,'author@example.test','{\"login\":\"Автор с тестом\"}')",[D,E]);
   await db.query("insert into knowledge_private.test_creators(user_id,role) values ($1,'owner'),($2,'deputy'),($3,'author') on conflict(user_id) do update set role=excluded.role",[A,C,E]);
-  await db.exec('create table auth.sessions(id uuid primary key,user_id uuid references auth.users(id) on delete cascade);create schema storage;create table storage.objects(owner_id text);');
+  await db.exec('create table auth.sessions(id uuid primary key,user_id uuid references auth.users(id) on delete cascade);');
   await db.query('insert into auth.sessions values(gen_random_uuid(),$1)',[D]);
   await asUser(null,'anon'); await denied(()=>accounts({action:'list'}),'42501');
   const occupied=await signup('  EXISTING   USER  '); assert.deepEqual(occupied,{available:false});
@@ -45,7 +45,7 @@ export async function checkAccounts({db,asUser,rpc,denied,A,B,C,base,checks}) {
   await asUser(A);await accounts({action:'unblock',userId:D});
   await asUser(D);assert((await rpc({})).attempts.some(a=>a.id===attempt.id));
   checks.push('Blocking revokes sessions and rejects old JWTs at every protected RPC; unblocking preserves personal results and public guest content');
-  await db.exec('reset role');await db.query('insert into storage.objects values($1)',[D]);
+  await db.exec('reset role');await db.query('insert into storage.objects(owner_id) values($1)',[D]);
   await asUser(A);await denied(()=>accounts({action:'delete',userId:D}),'PT409');
   await db.exec('reset role');await db.query('delete from storage.objects where owner_id=$1',[D]);
   await asUser(A);await accounts({action:'delete',userId:D});

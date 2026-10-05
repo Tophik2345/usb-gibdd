@@ -30,7 +30,7 @@ export async function buildPwa(directory) {
   const laws=(await readdir(resolve(directory,'laws'))).filter(name=>name.endsWith('.json')).sort().map(name=>'./laws/'+name);
   const rules=(await readdir(resolve(directory,'rules'))).filter(name=>name.endsWith('.json')).sort().map(name=>'./rules/'+name);
   const history=(await readdir(resolve(directory,'rule-history'))).filter(name=>name.endsWith('.json')).sort().map(name=>'./rule-history/'+name);
-  const files=['./','./index.html','./favicon.svg','./manifest.webmanifest','./pwa/icon-192.png','./pwa/icon-512.png','./usb-gibdd-background.webp','./gibdd-emblem.svg',...assets,...laws,...rules,...history];
+  const files=['./','./index.html','./favicon.svg','./manifest.webmanifest','./pwa/icon-192.png','./pwa/icon-512.png','./usb-gibdd-background.webp','./gibdd-emblem.svg','./map/moscow.svg',...assets,...laws,...rules,...history];
   const hash=createHash('sha256');
   for(const file of files){hash.update(file);hash.update(await readFile(resolve(directory,file==='./'?'index.html':file)));}
   const version=hash.digest('hex').slice(0,16);

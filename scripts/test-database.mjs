@@ -17,6 +17,7 @@ import { checkSearchHistory } from './test-search-history.mjs';
 import { checkLeadershipTools } from './test-leadership-tools.mjs';
 import { checkLawReferences } from './test-law-references.mjs';
 import { checkSupport } from './test-support.mjs';
+import { checkServiceTools } from './test-service-tools.mjs';
 
 const root=resolve(import.meta.dirname,'..');
 const db=new PGlite();
@@ -25,6 +26,12 @@ const B='22222222-2222-4222-8222-222222222222';
 const C='33333333-3333-4333-8333-333333333333';
 const checks=[];
 await db.exec(`create role anon; create role authenticated; create role service_role; create schema auth;
+create schema storage;
+create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text references storage.buckets(id),name text,owner_id text,metadata jsonb,unique(bucket_id,name));
+alter table storage.objects enable row level security;
+grant usage on schema storage to anon,authenticated;
+grant select,insert,update,delete on storage.objects to anon,authenticated;
 create table auth.users(id uuid primary key, email text, raw_user_meta_data jsonb default '{}'::jsonb, email_confirmed_at timestamptz default now(),created_at timestamptz default now(),banned_until timestamptz);
 create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims',true),'')::jsonb,'{}'::jsonb) $$;
 create function auth.uid() returns uuid language sql stable as $$ select (auth.jwt()->>'sub')::uuid $$;
@@ -198,5 +205,6 @@ try {
   await checkLeadershipTools({db,asUser,rpc,denied,checks});
   await checkLawReferences({db,asUser,denied,A,B,checks});
   await checkSupport({db,asUser,denied,checks});
+  await checkServiceTools({db,asUser,denied,checks});
   console.log(JSON.stringify({passed:checks.length,checks,scope:'Actual PostgreSQL engine (PGlite), migrations, database roles and RPC; Auth JWT claims mocked locally'},null,2));
 } finally {await db.close();}

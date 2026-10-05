@@ -1,9 +1,11 @@
-type WorkPhoto = {
+export type WorkPhoto = {
   file: string;
   title: string;
   alt: string;
   width: number;
   height: number;
+  url?: string;
+  caption?: string;
 };
 
 // Add only inspected, distinct Russia Online images; preserve user-selected originals.
