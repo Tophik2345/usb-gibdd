@@ -5,8 +5,9 @@ import { supabase } from '@/lib/supabase';
 import { authErrorMessage } from '@/lib/auth-errors';
 import { useCodeCooldown } from '@/lib/code-cooldown';
 import { closeRecovery, requestRecoveryCode, verifyRecoveryCode, saveRecoveredPassword, type RecoveryState } from '@/lib/password-recovery';
+import SiteHeader, { type SitePage } from './site-header';
 
-export default function PasswordRecovery({ recovery, header }: { recovery: RecoveryState; header: React.ReactNode }) {
+export default function PasswordRecovery({ recovery }: { recovery: RecoveryState }) {
   const [email, setEmail] = useState(recovery.email);
   const [requested, setRequested] = useState(false);
   const [code, setCode] = useState('');
@@ -40,18 +41,27 @@ export default function PasswordRecovery({ recovery, header }: { recovery: Recov
       } else { await verifyRecoveryCode(email, code); setCode(''); }
     } catch (error) { setError(authErrorMessage(error, verified ? 'password' : 'verifyRecovery')); } finally { setPending(null); }
   }
-  async function cancel() {
+  async function leaveRecovery(nextPage: SitePage = 'account') {
     if (busy) return;
     setPending('cancel'); setError('');
     try {
-      if (verified) { const { error } = await supabase().auth.signOut({ scope: 'local' }); if (error) throw error; }
-      closeRecovery(); window.location.hash = 'account';
+      if (verified && !done) {
+        const client = supabase();
+        const { error } = await client.auth.signOut({ scope: 'local' });
+        if (error) {
+          // Auth can clear the local session even when server revocation fails.
+          const { data: { session }, error: sessionError } = await client.auth.getSession();
+          if (sessionError || session) throw error;
+        }
+      }
+      closeRecovery(); window.location.hash = nextPage;
+      window.scrollTo({ top: 0, behavior: 'instant' });
     } catch { setError('Не удалось выйти. Попробуйте ещё раз.'); } finally { setPending(null); }
   }
-  return <div className="auth-page">{header}<main className="auth-layout recovery-layout"><section className="auth-form-panel">
+  return <div className="auth-page"><SiteHeader page="account" busy={busy} onNavigate={page => { void leaveRecovery(page); }}/><main className="auth-layout recovery-layout"><section className="auth-form-panel">
     <div className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</div>
     <h1>{done ? 'Пароль изменён' : verified ? 'Новый пароль' : 'Восстановление пароля'}</h1>
-    {done ? <><p className="auth-success" role="status">Новый пароль сохранён. Вы можете продолжить работу.</p><button className="button primary full" onClick={closeRecovery}>Перейти в кабинет</button></> : <>
+    {done ? <><p className="auth-success" role="status">Новый пароль сохранён. Вы можете продолжить работу.</p><button className="button primary full" onClick={() => { void leaveRecovery('home'); }}>Перейти в кабинет</button></> : <>
       <p className="auth-subtitle">{verified ? 'Установите отдельный пароль для этого сайта.' : 'Укажите почту, которую использовали при регистрации.'}</p>
       {notice && <p className="auth-success" role="status">{notice}</p>}
       <form className="auth-form" onSubmit={submit}>
@@ -65,7 +75,7 @@ export default function PasswordRecovery({ recovery, header }: { recovery: Recov
         {error && <p className="inline-error" role="alert">{error}</p>}
         <button className="button primary full" type="submit" disabled={busy || (!requested && !verified && wait.remaining > 0)}>{busy && <Loader2 className="spin" size={18}/>} {busy ? 'Подождите…' : verified ? 'Сохранить пароль' : requested ? 'Подтвердить код' : wait.remaining ? `Отправить код через ${wait.remaining} с` : 'Отправить код'}</button>
         {requested && !verified && <button className="button outline full" type="button" onClick={send} disabled={busy || wait.remaining > 0}>{wait.remaining ? `Повторная отправка через ${wait.remaining} с` : 'Отправить код повторно'}</button>}
-        <button className="text-button" type="button" disabled={busy} onClick={cancel}>Вернуться к входу</button>
+        <button className="text-button" type="button" disabled={busy} onClick={() => { void leaveRecovery(); }}>Вернуться к входу</button>
       </form>
     </>}
   </section></main></div>;

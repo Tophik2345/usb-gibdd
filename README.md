@@ -100,6 +100,14 @@ https://tophik2345.github.io/usb-gibdd/
 подтверждённый аккаунт нужно открывать через вход. Шаблон письма с цифровым кодом
 должен содержать `{{ .Token }}` в настройках Supabase; приложение не меняет шаблон.
 
+Готовый шаблон с кодом и ссылкой находится в
+[`supabase/templates/confirmation.html`](supabase/templates/confirmation.html).
+В Supabase откройте Authentication → Email Templates → Confirm signup,
+вставьте содержимое файла в тело письма и сохраните. Если сохраняете свой дизайн,
+добавьте `<p>Код подтверждения: <strong>{{ .Token }}</strong></p>`
+и оставьте существующую ссылку `{{ .ConfirmationURL }}`.
+Файл в репозитории сам по себе не обновляет настройку Supabase.
+
 Если Google SMTP возвращает `535 5.7.8 Username and Password not accepted`,
 проверьте SMTP Username и обновите SMTP Password в настройках Supabase:
 для Gmail нужен пароль приложения соответствующего Google-аккаунта.

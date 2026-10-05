@@ -56,7 +56,7 @@ export default function Workspace(){
  const [account,setAccount]=useState<AccountScope|null>(null);
  const recovery=useSyncExternalStore(subscribeRecovery,recoverySnapshot,()=>null);
  useEffect(()=>{if(authConfigured)trackPasswordRecovery();return subscribeToAccount(setAccount);},[]);
- if(recovery)return <PasswordRecovery recovery={recovery} header={<SiteHeader page="account" onNavigate={page=>{window.location.hash=page;}}/>}/>;
+ if(recovery)return <PasswordRecovery recovery={recovery}/>;
  if(!account)return <div className="auth-loading"><Logo/><Loader2 className="spin" size={25}/><p>Загружаем рабочее пространство…</p></div>;
  // Reset every child state and callback when the authenticated account changes.
  return <AccountWorkspace key={account.generation} userId={account.userId}/>;
