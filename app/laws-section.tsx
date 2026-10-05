@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BookOpen, Search, Loader2, ChevronDown, Bookmark as BookmarkIcon, ArrowUpRight } from 'lucide-react';
-import documents from '@/lib/law-documents.json';
+import initialDocuments from '@/lib/law-documents.json';
+import { useLawDocuments } from '@/lib/law-updates';
+import { formatSiteDate } from '@/lib/date-time';
 import { portalApi, type Bookmark } from '@/lib/portal-api';
 import { matchesLaw, lawExcerpt, normalizeLawText, type LawText, type LawEntry } from '@/lib/law-search';
 import SectionLinks from './section-links';
@@ -8,14 +10,15 @@ import SectionLinks from './section-links';
 import { lawCache as cache, loadDocument } from '@/lib/law-loader';
 const articleWord=(n:number)=>n%100>=11&&n%100<=14?'статей':n%10===1?'статья':n%10>=2&&n%10<=4?'статьи':'статей';
 const pointWord=(n:number)=>n%100>=11&&n%100<=14?'пунктов':n%10===1?'пункт':n%10>=2&&n%10<=4?'пункта':'пунктов';
-const articleCount=documents.filter(d=>d.unit!=='point').reduce((n,d)=>n+d.articleCount,0);
-const pointCount=documents.filter(d=>d.unit==='point').reduce((n,d)=>n+d.articleCount,0);
 function lawLocation(){
   const params=new URLSearchParams(window.location.hash.split('?')[1]||'');
   const id=params.get('document');const article=params.get('article')||'';
-  return {document:documents.some(d=>d.id===id)?id!:documents[0].id,article:/^article-\d+$/.test(article)?article:''};
+  return {document:initialDocuments.some(d=>d.id===id)?id!:initialDocuments[0].id,article:/^article-\d+$/.test(article)?article:''};
 }
 export default function LawsSection({signedIn=false}:{signedIn?:boolean}){
+  const {documents,updateError}=useLawDocuments();
+  const articleCount=documents.filter(d=>d.unit!=='point').reduce((n,d)=>n+d.articleCount,0);
+  const pointCount=documents.filter(d=>d.unit==='point').reduce((n,d)=>n+d.articleCount,0);
   const [selected,setSelected]=useState(()=>lawLocation().document);
   const [content,setContent]=useState<LawText|null>(null);
   const [query,setQuery]=useState('');
@@ -37,7 +40,7 @@ export default function LawsSection({signedIn=false}:{signedIn?:boolean}){
     let active=true;setError('');setContent(cache.get(selected)||null);
     loadDocument(selected).then(data=>{if(active)setContent(data);}).catch(e=>{if(active)setError(e.message);});
     return()=>{active=false;};
-  },[selected,retry]);
+  },[selected,retry,documents]);
   useEffect(()=>{
     if(!needsAll)return;let active=true;setSearchLoading(true);setFailed([]);
     Promise.allSettled(documents.map(d=>loadDocument(d.id))).then(results=>{
@@ -45,7 +48,7 @@ export default function LawsSection({signedIn=false}:{signedIn?:boolean}){
       results.forEach((result,index)=>{if(result.status==='fulfilled')next[documents[index].id]=result.value;else failures.push(documents[index].shortTitle);});
       setLoaded(next);setFailed(failures);setSearchLoading(false);
     });return()=>{active=false;};
-  },[needsAll,retry]);
+  },[needsAll,retry,documents]);
   useEffect(()=>{
     if(!signedIn){setBookmarks([]);setBookmarkLoading(false);return;}
     let active=true;setBookmarkLoading(true);setBookmarkError('');
@@ -106,8 +109,11 @@ export default function LawsSection({signedIn=false}:{signedIn?:boolean}){
     </div>:<>
       <div className="law-reading-heading"><h2>{meta.title}</h2><p>{meta.description}</p></div>
       <div className="law-tools"><button type="button" className="button outline" disabled={!content} onClick={()=>setExpanded(v=>!v)}>{expanded?'Свернуть':'Развернуть'} {meta.unit==='point'?'пункты':'статьи'}</button></div>
-      <p className="law-edition">Сервер: {meta.server}. Копия получена {meta.date}.{meta.editionDate&&<> {meta.editionDateLabel}: {meta.editionDate}.</>}<br/>Нумерация, части и примечания сохранены. Дата копии не подтверждает актуальность редакции; изменения форума не переносятся автоматически.</p>
-      {meta.editorialNotes.length>0&&<details className="law-edition-notes"><summary>Замечания к ссылкам в исходном документе</summary><p>В предоставленной редакции обнаружены несогласованные ссылки. Они сохранены дословно; перед применением спорной нормы уточните её у уполномоченного руководства.</p><ul>{meta.editorialNotes.map(note=><li key={note}>{note}</li>)}</ul></details>}
+      <p className="law-edition">Сервер: {meta.server}. Проверка официального источника — каждые 6 часов.<br/>
+        {content?.checkedAt?<>Проверено: {formatSiteDate(content.checkedAt)}.{content.sourceEditedAt&&<> Последняя правка на форуме: {formatSiteDate(content.sourceEditedAt)}.</>} <a href={meta.sourceUrl} target="_blank" rel="noopener noreferrer">Официальный источник</a></>:<>Сохранённая копия от {meta.date}. Загружаем сведения о проверке.</>}<br/>
+        Нумерация, части и примечания сохранены. Иллюстрации доступны в официальной теме.</p>
+      {updateError&&<p className="law-feedback" role="status">{updateError}</p>}
+      {meta.editorialNotes.length>0&&<details className="law-edition-notes"><summary>Замечания к копии от {meta.date}</summary><p>В исходной копии обнаружены несогласованные ссылки. Сверьте их с текущим текстом официальной темы; перед применением спорной нормы уточните её у уполномоченного руководства.</p><ul>{meta.editorialNotes.map(note=><li key={note}>{note}</li>)}</ul></details>}
       {error?<div className="error-banner" role="alert"><span>{error}</span><button type="button" className="text-button" onClick={()=>setRetry(n=>n+1)}>Повторить</button></div>:!content?<p className="law-loading" role="status"><Loader2 className="spin" size={20}/>Загружаем статьи…</p>:<div className="law-reading-layout">
         <aside className="law-toc"><h3>Оглавление</h3><nav aria-label="Главы выбранного документа">{chapters.map(c=><button type="button" key={c.id} onClick={()=>{setQuery('');setExpanded(true);setJump(c.id);}}>{c.title}</button>)}</nav></aside>
         <div className="law-text" aria-label="Текст выбранного документа">{content.entries.map(entry=>entry.kind==='article'?<details key={`${selected}-${entry.id}-${expanded}`} id={`law-${selected}-${entry.id}`} className="law-article" open={expanded}>

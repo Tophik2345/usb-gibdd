@@ -1,0 +1,10 @@
+[
+  {"id":"charter","sourceUrl":"https://forum.russia.online/threads/vnutrennii-ustav-gibdd.5291/","sourcePost":"post-17477","titleMatch":"внутренний устав гибдд","minimumArticles":26,"minimumTextLength":18000},
+  {"id":"criminal","sourceUrl":"https://forum.russia.online/threads/ugolovnyi-kodeks-ro.4805/","sourcePost":"post-16284","titleMatch":"уголовный кодекс ро","minimumArticles":152,"minimumTextLength":60000},
+  {"id":"labour","sourceUrl":"https://forum.russia.online/threads/trudovoi-kodeks-ro.4943/","sourcePost":"post-16520","titleMatch":"трудовой кодекс ро","minimumArticles":57,"minimumTextLength":30000},
+  {"id":"procedure","sourceUrl":"https://forum.russia.online/threads/protsessual-nyi-kodeks-ro.4910/","sourcePost":"post-16474","titleMatch":"процессуальный кодекс ро","minimumArticles":99,"minimumTextLength":75000},
+  {"id":"police","sourceUrl":"https://forum.russia.online/threads/federal-nyi-zakon-o-politsii.5257/","sourcePost":"post-17391","titleMatch":"о полиции","minimumArticles":61,"minimumTextLength":35000},
+  {"id":"traffic-police","sourceUrl":"https://forum.russia.online/threads/federal-nyi-zakon-o-gosudarstvennoi-inspektsii-bezopasnosti-dorozhnogo-dvizheniya.5250/","sourcePost":"post-17302","titleMatch":"государственной инспекции безопасности дорожного движения","minimumArticles":61,"minimumTextLength":35000},
+  {"id":"administrative","sourceUrl":"https://forum.russia.online/threads/kodeks-ro-ob-administrativnykh-pravonarusheniyakh.4930/","sourcePost":"post-16504","titleMatch":"кодекс ро об административных правонарушениях","minimumArticles":86,"minimumTextLength":40000},
+  {"id":"traffic-rules","sourceUrl":"https://forum.russia.online/threads/pravila-dorozhnogo-dvizheniya-ro.5269/","sourcePost":"post-17428","titleMatch":"правила дорожного движения ро","minimumArticles":104,"minimumTextLength":33000}
+]

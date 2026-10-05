@@ -1,0 +1,31 @@
+export async function checkLawReferences({ db, asUser, denied, A, B, checks }) {
+  const api = async payload => (await db.query('select public.knowledge_portal($1::jsonb) as data', [JSON.stringify(payload)])).rows[0].data;
+  const sync = async refs => (await db.query('select public.sync_law_article_references($1::jsonb) as data', [JSON.stringify(refs)])).rows[0].data;
+  await db.exec('reset role');
+  const original = (await db.query('select document_id as document,article_id as article from knowledge_private.law_article_refs where active')).rows;
+  await asUser(null, 'anon'); await denied(() => sync(original), '42501');
+  await asUser(A); await denied(() => sync(original), '42501');
+  await api({ action: 'setBookmark', document: 'criminal', article: 'article-6', saved: true });
+  const next = original.filter(ref => !(ref.document === 'criminal' && ref.article === 'article-6'));
+  next.push({ document: 'charter', article: 'article-99991' });
+  await db.exec('reset role');
+  await db.query("select set_config('request.jwt.claims',$1,false)", [JSON.stringify({ role: 'service_role' })]);
+  await db.exec('set role service_role');
+  for (const value of [null, [], [...next, next[0]], next.map((ref, index) => index ? ref : { ...ref, document: 'unknown' })]) await denied(() => sync(value), 'PT400');
+  const result = await sync(next);
+  if (result.activeReferences !== next.length) throw new Error('Reference count mismatch.');
+  await asUser(A);
+  const before = await api({ op: 'bookmarks' });
+  if (!before.bookmarks.some(ref => ref.document === 'criminal' && ref.article === 'article-6')) throw new Error('Retiring an article deleted an existing bookmark.');
+  await denied(() => api({ action: 'setBookmark', document: 'criminal', article: 'article-6', saved: true }), 'PT404');
+  await api({ action: 'setBookmark', document: 'criminal', article: 'article-6', saved: false });
+  await api({ action: 'setBookmark', document: 'charter', article: 'article-99991', saved: true });
+  await asUser(B);
+  if ((await api({ op: 'bookmarks' })).bookmarks.some(ref => ref.article === 'article-99991')) throw new Error('Bookmark became visible to another user.');
+  await asUser(A); await api({ action: 'setBookmark', document: 'charter', article: 'article-99991', saved: false });
+  await db.exec('reset role');
+  await db.query("select set_config('request.jwt.claims',$1,false)", [JSON.stringify({ role: 'service_role' })]);
+  await db.exec('set role service_role'); await sync(original); await db.exec('reset role');
+  await db.query("delete from knowledge_private.law_article_refs where document_id='charter' and article_id='article-99991'");
+  checks.push('Only server identities can sync law references; new articles can be bookmarked, retired bookmarks survive and can be removed, and user privacy is preserved');
+}

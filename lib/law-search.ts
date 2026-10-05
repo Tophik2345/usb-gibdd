@@ -1,5 +1,5 @@
 export type LawEntry = { id: string; kind: 'section'|'article'|'introduction'; title: string; chapter: string; page: number; paragraphs: string[] };
-export type LawText = { id: string; title: string; entries: LawEntry[] };
+export type LawText = { id: string; title: string; entries: LawEntry[]; checkedAt?: string; sourceUrl?: string; sourcePost?: string; sourceEditedAt?: string | null; contentHash?: string };
 export const normalizeLawText = (text: string) => text.toLocaleLowerCase('ru-RU').replace(/ё/g,'е').replace(/\s+/g,' ').trim();
 export function matchesLaw(entry: LawEntry, query: string): boolean {
   const needle = normalizeLawText(query);

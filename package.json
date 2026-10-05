@@ -21,7 +21,10 @@
     "test:pwa": "node scripts/test-pwa.mjs",
     "sync:rules": "node scripts/sync-project-rules.mjs",
     "test:rules": "node scripts/test-project-rules.mjs",
-    "test:forum-access": "node scripts/test-forum-access.mjs"
+    "test:forum-access": "node scripts/test-forum-access.mjs",
+    "sync:laws": "node scripts/sync-laws.mjs",
+    "test:laws": "node scripts/test-laws-sync.mjs && node scripts/test-law-loader.mjs",
+    "test:law-identity": "node scripts/test-law-identity.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",

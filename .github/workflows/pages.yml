@@ -41,6 +41,8 @@ jobs:
         run: pnpm test:rules
       - name: Verify credential handling for the forum access check
         run: pnpm test:forum-access
+      - name: Verify law import, freshness and bookmark synchronization identities
+        run: pnpm test:laws && pnpm test:law-identity
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5
