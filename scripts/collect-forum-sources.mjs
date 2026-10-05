@@ -67,7 +67,8 @@ export async function collectSources(values, cookie, userAgent = 'Mozilla/5.0', 
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    const values = process.env.FORUM_SOURCE_URLS?.trim().split(/\s+/).filter(Boolean) || defaults;
+    const configured = process.env.FORUM_SOURCE_URLS?.trim();
+    const values = configured ? configured.split(/\s+/) : defaults;
     const sources = await collectSources(values, process.env.FORUM_COOKIE, process.env.FORUM_USER_AGENT || 'Mozilla/5.0');
     await mkdir('/tmp/usb-forum-sources', { recursive: true });
     await writeFile('/tmp/usb-forum-sources/sources.json', JSON.stringify(sources, null, 2));
