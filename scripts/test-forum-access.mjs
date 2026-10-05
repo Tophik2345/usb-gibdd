@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { checkForumAccess } from './check-forum-access.mjs';
+import { officialUrl, extractSource, collectSources } from './collect-forum-sources.mjs';
 
 const cookie = 'xf_session=local-test-session; xf_user=local-test-user';
 const response = html => new Response(html, { headers: { 'content-type': 'text/html' } });
@@ -59,4 +60,25 @@ await test('transport errors containing session data are not exposed in the repo
   assert.equal(result.authorized, false);
   assert(!JSON.stringify(result).includes(cookie));
   assert(!JSON.stringify(result).includes('local-test-session'));
+});
+
+await test('source collection refuses off-site destinations and account or action links before sending a session', async () => {
+  for (const url of ['https://other.test/threads/law.1/', 'https://forum.russia.online/account/', 'https://forum.russia.online/threads/law.1/?token=secret', 'https://user@forum.russia.online/threads/law.1/']) {
+    assert.throws(() => officialUrl(url));
+    let called = false;
+    await assert.rejects(collectSources([url], cookie, 'agent', async () => { called = true; }));
+    assert.equal(called, false);
+  }
+  assert.equal(officialUrl('/threads/law.1/#post-1'), 'https://forum.russia.online/threads/law.1/');
+});
+
+await test('source artifacts contain only document bodies and official section links, with credential attributes removed', () => {
+  const source = extractSource('<title>Официальный закон</title><input name="_xfToken" value="private-token"><a href="/account/">Private account</a><h3 class="node-title"><a href="/forums/laws.1/">Законы</a></h3><h3 class="node-title"><a href="https://other.test/">External</a></h3><article class="message" data-content="post-1"><span>Private username</span><div class="message-body"><div class="bbWrapper"><div style="text-align: center">Глава I</div><p data-user="private-user"><a href="/action?token=private-token">Статья 1. Норма</a></p><script>private-secret</script><form><input value="private-token"></form></div></div></article>', 'https://forum.russia.online/threads/law.1/');
+  assert.equal(source.posts.length, 1);
+  assert.equal(source.links.length, 1);
+  assert.equal(source.links[0].url, 'https://forum.russia.online/forums/laws.1/');
+  assert(source.posts[0].html.includes('Статья 1. Норма'));
+  assert(source.posts[0].html.includes('text-align: center'));
+  assert(!JSON.stringify(source).includes('private-'));
+  assert(!JSON.stringify(source).includes('Private username'));
 });

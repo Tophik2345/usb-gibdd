@@ -6,6 +6,10 @@ on:
         description: 'Optional User-Agent of the browser session (not a credential)'
         required: false
         type: string
+      source_urls:
+        description: 'Official document or section URLs separated by spaces; empty uses the two initial sources'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -27,6 +31,18 @@ jobs:
           FORUM_COOKIE: ${{ secrets.FORUM_COOKIE }}
           FORUM_USER_AGENT: ${{ inputs.user_agent || secrets.FORUM_USER_AGENT }}
         run: node scripts/check-forum-access.mjs
+      - name: Read only official message bodies and section links
+        env:
+          FORUM_COOKIE: ${{ secrets.FORUM_COOKIE }}
+          FORUM_USER_AGENT: ${{ inputs.user_agent || secrets.FORUM_USER_AGENT }}
+          FORUM_SOURCE_URLS: ${{ inputs.source_urls }}
+        run: node scripts/collect-forum-sources.mjs
+      - name: Save official source bodies for importer preparation
+        uses: actions/upload-artifact@v4
+        with:
+          name: forum-source-bodies
+          path: /tmp/usb-forum-sources/sources.json
+          retention-days: 3
       - name: Save access status
         if: always()
         uses: actions/upload-artifact@v4
