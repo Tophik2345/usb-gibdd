@@ -20,7 +20,8 @@
     "test:drafts": "node scripts/test-editor-drafts.mjs",
     "test:pwa": "node scripts/test-pwa.mjs",
     "sync:rules": "node scripts/sync-project-rules.mjs",
-    "test:rules": "node scripts/test-project-rules.mjs"
+    "test:rules": "node scripts/test-project-rules.mjs",
+    "test:forum-access": "node scripts/test-forum-access.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",

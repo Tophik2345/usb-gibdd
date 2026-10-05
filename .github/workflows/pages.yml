@@ -39,6 +39,8 @@ jobs:
         run: pnpm test:db
       - name: Verify official rules and preservation of the previous edition
         run: pnpm test:rules
+      - name: Verify credential handling for the forum access check
+        run: pnpm test:forum-access
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5

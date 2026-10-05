@@ -1,0 +1,32 @@
+name: Check authorized forum access
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install package manager
+        run: npm install --global pnpm@11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:forum-access
+      - name: Verify access without printing credentials or page contents
+        env:
+          FORUM_COOKIE: ${{ secrets.FORUM_COOKIE }}
+          FORUM_USER_AGENT: ${{ secrets.FORUM_USER_AGENT }}
+        run: node scripts/check-forum-access.mjs
+      - name: Save access status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forum-access-status
+          path: /tmp/usb-forum-access.json
+          if-no-files-found: ignore
+          retention-days: 3
