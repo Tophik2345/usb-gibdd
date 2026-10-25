@@ -1,0 +1,39 @@
+{
+  "id": "state-organizations-46cfc40f835e4e779d05e7be",
+  "document": "state-organizations",
+  "title": "Правила государственных организаций",
+  "sourceUrl": "https://forum.russia.online/threads/pravila-gosudarstvennykh-organizatsii.11/",
+  "sourceEditedAt": "2026-10-25T22:06:06+0300",
+  "detectedAt": "2026-10-25T20:53:17.847Z",
+  "beforeHash": "7d310fd2755f8ad17cc9a2c8c031345b8460c64ce904301bade35f84b19b1c37",
+  "afterHash": "db256d7cf31b2a7cb0fb9ad41e3e6b6aa8327d35436cc583a9c744042a80cc70",
+  "added": 0,
+  "changed": 1,
+  "removed": 0,
+  "changes": [
+    {
+      "id": "point-6.2.1",
+      "type": "changed",
+      "before": {
+        "id": "point-6.2.1",
+        "kind": "article",
+        "title": "Пункт 6.2.1",
+        "chapter": "",
+        "paragraphs": [
+          "6.2.1 Отдел \"Госгвардия\" имеет право патрулировать улицы города с целью охраны общественного порядка и обеспечения общественной безопасности. | Demorgan 50-90 минут / WARN.",
+          "Примечание: нарушителей необходимо передавать сотрудникам МВД/ФСБ."
+        ]
+      },
+      "after": {
+        "id": "point-6.2.1",
+        "kind": "article",
+        "title": "Пункт 6.2.1",
+        "chapter": "",
+        "paragraphs": [
+          "6.2.1 Отдел \"Росгвардия\" имеет право патрулировать улицы города с целью охраны общественного порядка и обеспечения общественной безопасности. | Demorgan 50-90 минут / WARN.",
+          "Примечание: нарушителей необходимо передавать сотрудникам МВД/ФСБ."
+        ]
+      }
+    }
+  ]
+}
