@@ -59,6 +59,19 @@
   ],
   "revisions": [
     {
+      "id": "state-organizations-bf18ffe6f12040bbb7906c45",
+      "document": "state-organizations",
+      "title": "Правила государственных организаций",
+      "sourceUrl": "https://forum.russia.online/threads/pravila-gosudarstvennykh-organizatsii.11/",
+      "sourceEditedAt": "2026-10-25T16:44:13+0300",
+      "detectedAt": "2026-10-25T16:24:59.038Z",
+      "beforeHash": "66a9f64f40cd83612ae4367e48763684d7f11ec88dca47cbbd4e5b9d2b8a22f5",
+      "afterHash": "7d310fd2755f8ad17cc9a2c8c031345b8460c64ce904301bade35f84b19b1c37",
+      "added": 1,
+      "changed": 0,
+      "removed": 0
+    },
+    {
       "id": "state-organizations-82a0b80385ff1db85a426475",
       "document": "state-organizations",
       "title": "Правила государственных организаций",
